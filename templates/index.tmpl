@@ -1,23 +1,47 @@
 <html>
+<head>
+    <style>
+        .card {
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            height: 100px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+  </style>
+</head>
+<body>
     <h1>
         {{ .title }}
     </h1>
 
+    {{if .filtered}}
+    <h2>Search: {{ .filtered }} </h2>
+    <a href="/"><button type="button">Reset</button></a>
+    {{end}}
+
     {{ range .services }}
-        {{if contains .Data .filtered}}
-            <div>
-                <a href="service/{{ .ID }}"> 
-                    <div>
-                        {{ .ID }} 
-                        {{ .Data }} 
-                    </div>
-                </a>
-            </div>
-        {{ end }}
+        <div class="card">
+            <a href="service/{{ .ID }}">
+                <div class = title> {{ .Name }} </div>
+            </a>
+            <div> ID: {{ .ID }} </div>
+            <div>Blob: {{ .Blob }}</div> 
+        </div>
     {{ end }}
 
-    <form>
-        <input type="text" name="text" class="search" placeholder="Search here!" />
-        <input action="/filter" type="submit" name="text" class="search" value="Search here!" />
+    <form action="/filter">
+        <input type="text" name="text" class="search" value="{{ .filtered }}" placeholder="Search here!" />
     </form>
+
+</body>
 </html>

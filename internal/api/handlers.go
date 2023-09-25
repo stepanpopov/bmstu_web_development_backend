@@ -2,45 +2,53 @@ package api
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-func showAllServices(services []Service) func(c *gin.Context) {
+func showAllPlainData(p []PlainData) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"title":    "Services",
-			"services": services,
-			"contains": strings.Contains,
-			"filtered": "",
+			"title":    "PlainData",
+			"services": p,
 		})
 	}
 }
 
-func showService(services []Service) func(c *gin.Context) {
+func showPlainData(p []PlainData) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"title": c.Param("id"),
-		})
+
+		id, _ := strconv.Atoi(c.Param("id")[1:])
+
+		for _, v := range p {
+			if v.ID == id {
+				c.HTML(http.StatusOK, "service.tmpl", gin.H{
+					"name": v.Name,
+					"blob": v.Blob,
+				})
+			}
+		}
 	}
 }
 
-type text struct {
-	Text string
-}
-
-func filterServices(services []Service) func(c *gin.Context) {
+func filterPlainDatas(p []PlainData) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		var req text
-		c.BindJSON(req)
+		queryText, _ := c.GetQuery("text")
+
+		var filtered []PlainData
+		for _, val := range p {
+			if strings.Contains(val.Name, queryText) {
+				filtered = append(filtered, val)
+			}
+		}
 
 		c.HTML(http.StatusOK, "index.tmpl",
 			gin.H{
-				"title":    "Services",
-				"services": services,
-				"contains": strings.Contains,
-				"filtered": req.Text,
+				"title":    "PlainData",
+				"services": filtered,
+				"filtered": queryText,
 			})
 	}
 }

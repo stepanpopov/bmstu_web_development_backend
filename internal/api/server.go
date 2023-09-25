@@ -6,34 +6,41 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Service struct {
+type PlainData struct {
 	ID   int
-	Data string
+	Name string
+	Blob string
 }
 
 func StartServer() {
 	log.Println("Server start up")
 
-	services := []Service{
-		Service{
+	PlainDatas := []PlainData{
+		PlainData{
 			ID:   1,
-			Data: "AAAA",
+			Name: "Encode your secrets",
+			Blob: "secret",
 		},
-		Service{
+		PlainData{
 			ID:   2,
-			Data: "VVVV",
+			Name: "Decode your life",
+			Blob: "01001001000100",
 		},
 	}
 
 	r := gin.Default()
 
+	/* r.SetFuncMap(template.FuncMap{
+		"contains": strings.Contains,
+	}) */
+
 	r.LoadHTMLGlob("templates/*")
 
-	r.GET("/", showAllServices(services))
+	r.GET("/", showAllPlainData(PlainDatas))
 
-	r.POST("/filter", filterServices(services))
+	r.GET("/filter", filterPlainDatas(PlainDatas))
 
-	r.GET("/service/*id", showService(services))
+	r.GET("/service/*id", showPlainData(PlainDatas))
 
 	r.Static("/image", "./resources")
 
