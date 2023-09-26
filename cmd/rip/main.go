@@ -1,9 +1,12 @@
 package main
 
 import (
-	"rip/internal/api"
+	"rip/internal/pkg/api"
 )
 
 func main() {
+	
+
+
 	api.StartServer()
 }

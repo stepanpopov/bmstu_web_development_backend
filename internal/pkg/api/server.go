@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,32 @@ type PlainData struct {
 	Blob string
 }
 
-func StartServer() {
+type Server struct {
+	host string
+	port int
+}
+
+func WithHost(host string) func(*Server) {
+	return func(s *Server) {
+	  s.host = host
+	}
+  }
+  
+func WithPort(port int) func(*Server) {
+	return func(s *Server) {
+	  s.port = port
+	}
+}
+
+func NewServer(options ...func(*Server)) *Server {
+	srv := &Server{}
+	for _, o := range options {
+		o(srv)
+	}
+	return srv
+}
+
+func(s *Server) StartServer() {
 	log.Println("Server start up")
 
 	PlainDatas := []PlainData{
@@ -44,7 +70,7 @@ func StartServer() {
 
 	r.Static("/image", "./resources")
 
-	r.Run()
+	r.Run(fmt.Sprintf("%s:%d", s.host, s.port))
 
 	log.Println("Server down")
 }
