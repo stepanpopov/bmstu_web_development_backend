@@ -3,51 +3,63 @@ package api
 import (
 	"net/http"
 	"strconv"
-	"strings"
+
+	"rip/internal/pkg/repo"
 
 	"github.com/gin-gonic/gin"
 )
 
-func showAllPlainData(p []PlainData) func(c *gin.Context) {
+func notFound(c *gin.Context) {
+	c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
+}
+
+func showAllDataService(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
+		d, err := r.GetDataServiceAll()
+		if err != nil {
+			notFound(c)
+			return
+		}
+
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"title":    "PlainData",
-			"services": p,
+			"title":    "DataService",
+			"services": d,
 		})
 	}
 }
 
-func showPlainData(p []PlainData) func(c *gin.Context) {
+func showDataService(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 
-		id, _ := strconv.Atoi(c.Param("id")[1:])
+		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
 
-		for _, v := range p {
-			if v.ID == id {
-				c.HTML(http.StatusOK, "service.tmpl", gin.H{
-					"name": v.Name,
-					"blob": v.Blob,
-				})
-			}
+		d, err := r.GetDataServiceById(uint(id))
+		if err != nil {
+			notFound(c)
+			return
 		}
+
+		c.HTML(http.StatusOK, "service.tmpl", gin.H{
+			"name": d.Name,
+			"blob": d.Blob,
+		})
 	}
 }
 
-func filterPlainDatas(p []PlainData) func(c *gin.Context) {
+func filterDataService(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		queryText, _ := c.GetQuery("text")
 
-		var filtered []PlainData
-		for _, val := range p {
-			if strings.Contains(val.Name, queryText) {
-				filtered = append(filtered, val)
-			}
+		filt, err := r.GetDataServiceFilteredByName(queryText)
+		if err != nil {
+			notFound(c)
+			return
 		}
 
 		c.HTML(http.StatusOK, "index.tmpl",
 			gin.H{
-				"title":    "PlainData",
-				"services": filtered,
+				"title":    "DataService",
+				"services": filt,
 				"filtered": queryText,
 			})
 	}

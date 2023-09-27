@@ -4,14 +4,10 @@ import (
 	"fmt"
 	"log"
 
+	"rip/internal/pkg/repo"
+
 	"github.com/gin-gonic/gin"
 )
-
-type PlainData struct {
-	ID   int
-	Name string
-	Blob string
-}
 
 type Server struct {
 	host string
@@ -20,13 +16,13 @@ type Server struct {
 
 func WithHost(host string) func(*Server) {
 	return func(s *Server) {
-	  s.host = host
+		s.host = host
 	}
-  }
-  
+}
+
 func WithPort(port int) func(*Server) {
 	return func(s *Server) {
-	  s.port = port
+		s.port = port
 	}
 }
 
@@ -38,37 +34,21 @@ func NewServer(options ...func(*Server)) *Server {
 	return srv
 }
 
-func(s *Server) StartServer() {
+func (s *Server) StartServer(rep repo.Repository) {
 	log.Println("Server start up")
-
-	PlainDatas := []PlainData{
-		PlainData{
-			ID:   1,
-			Name: "Encode your secrets",
-			Blob: "secret",
-		},
-		PlainData{
-			ID:   2,
-			Name: "Decode your life",
-			Blob: "01001001000100",
-		},
-	}
 
 	r := gin.Default()
 
-	/* r.SetFuncMap(template.FuncMap{
-		"contains": strings.Contains,
-	}) */
+	r.LoadHTMLGlob("static/template/*")
+	r.Static("/static", "./static")
+	r.Static("/css", "./static")
+	r.Static("/img", "./static")
 
-	r.LoadHTMLGlob("templates/*")
+	r.GET("/", showAllDataService(rep))
 
-	r.GET("/", showAllPlainData(PlainDatas))
+	r.GET("/filter", filterDataService(rep))
 
-	r.GET("/filter", filterPlainDatas(PlainDatas))
-
-	r.GET("/service/*id", showPlainData(PlainDatas))
-
-	r.Static("/image", "./resources")
+	r.GET("/service/*id", showDataService(rep))
 
 	r.Run(fmt.Sprintf("%s:%d", s.host, s.port))
 

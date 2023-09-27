@@ -1,0 +1,37 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="static/css/main.css">
+    <link rel="stylesheet" type="text/css" href="static/css/navbar.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div>
+            <li><a href="/">{{ .title }}</a></li>
+        </div>
+    </nav>
+
+    <form action="/filter" class="search">
+        <input type="text" name="text" class="search" value="{{ .filtered }}" placeholder="Search here!" />
+        {{if .filtered}}
+            <h3>Search: {{ .filtered }} </h3>
+        {{end}}
+    </form>
+
+    <div class="cards">
+        {{ range .services }}
+            <a href="service/{{ .ID }}" class="card">
+                <div>
+                    <div class = title> {{ .Name }} </div>
+                    <div> ID: {{ .ID }} </div>
+                    <div>Blob: {{ .Blob }}</div> 
+                </div>
+            </a>
+        {{ end }}
+    </div>
+
+    <footer>
+        <p>2023 ENCRYPT/DECRYPT FOR ANYONE WORLDWIDE 2023</p>
+    </footer>
+
+</body>
+</html>

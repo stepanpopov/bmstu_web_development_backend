@@ -1,11 +1,13 @@
 package repo
 
-import (
-	"gorm.io/gorm"
+const (
+	Encode = iota
+	Decode
 )
 
-type Product struct {
-	ID        uint `gorm:"primarykey"`
-	Code  string
-	Price uint
+type DataService struct {
+	ID            uint `gorm:"primarykey"`
+	Name          string
+	Encode_Decode uint
+	Blob          string
 }
