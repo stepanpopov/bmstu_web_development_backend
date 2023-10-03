@@ -10,8 +10,8 @@
         </div>
     </nav>
 
-    <form action="/filter" class="search">
-        <input type="text" name="text" class="search" value="{{ .filtered }}" placeholder="Search here!" />
+    <form action="/" class="search">
+        <input type="text" name="dataname" class="search" value="{{ .filtered }}" placeholder="Search here!" />
         {{if .filtered}}
             <h3>Search: {{ .filtered }} </h3>
         {{end}}

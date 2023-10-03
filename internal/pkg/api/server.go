@@ -44,9 +44,7 @@ func (s *Server) StartServer(rep repo.Repository) {
 	r.Static("/css", "./static")
 	r.Static("/img", "./static")
 
-	r.GET("/", showAllDataService(rep))
-
-	r.GET("/filter", filterDataService(rep))
+	r.GET("/", filterDataService(rep))
 
 	r.GET("/service/*id", showDataService(rep))
 

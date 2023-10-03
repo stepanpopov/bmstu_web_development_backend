@@ -22,7 +22,7 @@ func showAllDataService(r repo.Repository) func(c *gin.Context) {
 		}
 
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"title":    "DataService",
+			"title":    "Шифрование кодом для коррекции ошибок",
 			"services": d,
 		})
 	}
@@ -48,7 +48,7 @@ func showDataService(r repo.Repository) func(c *gin.Context) {
 
 func filterDataService(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		queryText, _ := c.GetQuery("text")
+		queryText, _ := c.GetQuery("dataname")
 
 		filt, err := r.GetDataServiceFilteredByName(queryText)
 		if err != nil {
@@ -58,7 +58,7 @@ func filterDataService(r repo.Repository) func(c *gin.Context) {
 
 		c.HTML(http.StatusOK, "index.tmpl",
 			gin.H{
-				"title":    "DataService",
+				"title":    "Шифрование кодом для коррекции ошибок",
 				"services": filt,
 				"filtered": queryText,
 			})
