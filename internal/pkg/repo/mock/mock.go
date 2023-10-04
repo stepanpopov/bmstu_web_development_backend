@@ -16,13 +16,13 @@ func New() *Repository {
 			ID:            1,
 			Name:          "Encode your secrets",
 			Encode_Decode: repo.Encode,
-			Blob:          "secret",
+			Blob:          strings.Repeat("secret", 10),
 		},
 		repo.DataService{
 			ID:            2,
 			Name:          "Decode your life",
 			Encode_Decode: repo.Decode,
-			Blob:          "01001001000100",
+			Blob:          strings.Repeat("0100", 20),
 		},
 	}
 

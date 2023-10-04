@@ -13,6 +13,27 @@ func notFound(c *gin.Context) {
 	c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
 }
 
+func servicesView(d []repo.DataService, opts ...func(d []repo.DataService)) []repo.DataService {
+	copyD := make([]repo.DataService, len(d))
+	copy(d, copyD)
+
+	for _, o := range opts {
+		o(copyD)
+	}
+	return copyD
+}
+
+func viewWithBlobLenCtrl(n int) func(d []repo.DataService) {
+	return func(d []repo.DataService) {
+		n := n
+		for _, v := range d {
+			if len(v.Blob) > n {
+				v.Blob = v.Blob[:n]
+			}
+		}
+	}
+}
+
 func showAllDataService(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		d, err := r.GetDataServiceAll()
@@ -23,7 +44,7 @@ func showAllDataService(r repo.Repository) func(c *gin.Context) {
 
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"title":    "Шифрование кодом для коррекции ошибок",
-			"services": d,
+			"services": servicesView(d, viewWithBlobLenCtrl(10)),
 		})
 	}
 }
@@ -59,7 +80,7 @@ func filterDataService(r repo.Repository) func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.tmpl",
 			gin.H{
 				"title":    "Шифрование кодом для коррекции ошибок",
-				"services": filt,
+				"services": servicesView(filt, viewWithBlobLenCtrl(10)),
 				"filtered": queryText,
 			})
 	}
