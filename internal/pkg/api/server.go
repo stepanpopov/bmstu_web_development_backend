@@ -47,6 +47,7 @@ func (s *Server) StartServer(rep repo.Repository) {
 	r.GET("/", filterDataService(rep))
 
 	r.GET("/service/*id", showDataService(rep))
+	r.POST("/service/*id", deleteDataService(rep))
 
 	r.Run(fmt.Sprintf("%s:%d", s.host, s.port))
 

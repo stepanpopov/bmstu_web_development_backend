@@ -12,17 +12,35 @@ type Repository struct {
 
 func New() *Repository {
 	data := []repo.DataService{
-		repo.DataService{
-			ID:            1,
-			Name:          "Encode your secrets",
-			Encode_Decode: repo.Encode,
-			Blob:          strings.Repeat("secret", 10),
+		{
+			DataID:   1,
+			DataName: "Encode your secrets",
+			Encode:   true,
+			Blob:     strings.Repeat("secret ", 10),
 		},
-		repo.DataService{
-			ID:            2,
-			Name:          "Decode your life",
-			Encode_Decode: repo.Decode,
-			Blob:          strings.Repeat("0100", 20),
+		{
+			DataID:   2,
+			DataName: "Decode your life",
+			Encode:   false,
+			Blob:     strings.Repeat("0100 ", 20),
+		},
+		{
+			DataID:   3,
+			DataName: "Encode your wife",
+			Encode:   true,
+			Blob:     strings.Repeat("s3cr3t ", 20),
+		},
+		{
+			DataID:   4,
+			DataName: "Decode your wife",
+			Encode:   false,
+			Blob:     strings.Repeat("1030 ", 20),
+		},
+		{
+			DataID:   5,
+			DataName: "Encode methan's formauls",
+			Encode:   false,
+			Blob:     "CH4",
 		},
 	}
 
@@ -37,7 +55,7 @@ var (
 
 func (r *Repository) GetDataServiceById(id uint) (repo.DataService, error) {
 	for _, d := range r.data {
-		if d.ID == id {
+		if d.DataID == id {
 			d := d
 			return d, nil
 		}
@@ -54,7 +72,7 @@ func (r *Repository) GetDataServiceFilteredByName(name string) ([]repo.DataServi
 
 	var filtered []repo.DataService
 	for _, d := range r.data {
-		if strings.Contains(d.Name, name) {
+		if strings.Contains(d.DataName, name) {
 			filtered = append(filtered, d)
 		}
 	}

@@ -1,19 +1,20 @@
-db:
-    container_name: db
-    image: postgres:14
-    restart: always
-    env_file:
-      - .env
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}
-      PGDATA: "/var/lib/postgresql/data/pgdata"
-    ports:
-      - ${DB_PORT}:5432
-    volumes:
-      # - ./cmd/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d
-      - postgresdb-data:/var/lib/postgresql/data
+services:
+  db:
+      container_name: db
+      image: postgres:14
+      restart: always
+      env_file:
+        - .env
+      environment:
+        POSTGRES_DB: ${DB_NAME}
+        POSTGRES_USER: ${DB_USER}
+        POSTGRES_PASSWORD: ${DB_PASS}
+        PGDATA: "/var/lib/postgresql/data/pgdata"
+      ports:
+        - ${DB_PORT}:5432
+      volumes:
+        # - ./cmd/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d
+        - postgresdb-data:/var/lib/postgresql/data
 
 volumes:
-  postgresdb-data
+  postgresdb-data:

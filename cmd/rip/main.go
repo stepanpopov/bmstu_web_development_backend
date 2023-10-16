@@ -4,8 +4,9 @@ import (
 	"context"
 	"log"
 	"rip/internal/config"
+	"rip/internal/dsn"
 	"rip/internal/pkg/api"
-	"rip/internal/pkg/repo/mock"
+	repo "rip/internal/pkg/repo/postgres"
 )
 
 func main() {
@@ -16,7 +17,10 @@ func main() {
 
 	log.Print(conf.ServiceHost, conf.ServicePort)
 
-	repo := mock.New()
+	repo, err := repo.New(dsn.FromEnv())
+	if err != nil {
+		log.Fatal("DB connect error:", err)
+	}
 
 	serv := api.NewServer(
 		api.WithHost(conf.ServiceHost),

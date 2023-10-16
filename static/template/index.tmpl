@@ -19,18 +19,18 @@
 
     <div class="cards">
         {{ range .services }}
-            <a href="service/{{ .ID }}" class="card">
+            <a href="service/{{ .DataID }}" class="card">
                 <div>
-                    <div class = title> {{ .Name }} </div>
-                    <div> ID: {{ .ID }} </div>
-                    <div>Blob: {{ .Blob }}</div> 
+                    <div class = title> {{ .DataName }} </div>
+                    <div> ID: {{ .DataID }} </div>
+                    <div style='width: 100%;'>{{ .Blob }}</div> 
                 </div>
             </a>
         {{ end }}
     </div>
 
     <footer>
-        <p>2023 ENCRYPT/DECRYPT FOR ANYONE WORLDWIDE 2023</p>
+        <p>2023 ШИФРОВАННЯ/ДЕШИФРОВАННЯ ДЛЯ БУДЬ-КОГО СВІТУ 2023</p>
     </footer>
 
 </body>

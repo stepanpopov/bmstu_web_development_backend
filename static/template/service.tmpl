@@ -10,16 +10,35 @@
         </div>
     </nav>
 
-    <h1>
-        {{ .name }}
-    </h1>
+    <div class="service_card">
+    {{ if .active }}
+        <h1>
+            {{ .name }}
+        </h1>
 
-    <h2>
-        Blob: {{ .blob }}
-    </h2>
+        <h2>
+            ID: {{ .id }}
+        </h2>
+        <h2>
+            {{ if .encode }}
+                Зашифрованные данные
+            {{ else }}
+                Исходные данные
+            {{ end }}
+        </h2>
+        <h2>
+            Данные: {{ .blob }}
+        </h2>
+        <form action="{{ .id }}" method="POST" class="search">
+            <button class="primary" type="submit">Удалить</button>
+        </form>
+    {{ else }}
+    <h1> Город удален </h1>
+    {{ end }}
+    </div>
 
     <footer>
-        <p>2023 ENCRYPT/DECRYPT FOR ANYONE WORLDWIDE 2023</p>
+        <p>2023 ШИФРОВАННЯ/ДЕШИФРОВАННЯ ДЛЯ БУДЬ-КОГО СВІТУ 2023</p>
     </footer>
 </body>
 </html>

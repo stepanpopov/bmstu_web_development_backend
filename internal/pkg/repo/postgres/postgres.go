@@ -27,15 +27,31 @@ func (r *Repository) MigrateAll() error {
 }
 
 func (r *Repository) GetDataServiceById(id uint) (repo.DataService, error) {
-	return repo.DataService{}, nil
+	dataService := repo.DataService{DataID: id}
+	if err := r.db.Take(&dataService).Error; err != nil {
+		return repo.DataService{}, err
+	}
+	return dataService, nil
 }
 
 func (r *Repository) GetDataServiceAll() ([]repo.DataService, error) {
 	return nil, nil
 }
 
-func (r *Repository) GetDataServiceFilteredByName(name string) ([]repo.DataService, error) {
-	return nil, nil
+func (r *Repository) GetActiveDataServiceFilteredByName(name string) ([]repo.DataService, error) {
+	var dataService []repo.DataService
+	if err := r.db.Where(&repo.DataService{Active: true}).Where("data_name LIKE ?", name+"%").Find(&dataService).Error; err != nil {
+		return nil, err
+	}
+
+	return dataService, nil
+}
+
+func (r *Repository) DeleteDataService(id uint) error {
+	if err := r.db.Exec("UPDATE data_services SET active = false WHERE data_id = ?", id).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 /* func (r *Repository) GetProductByID(id int) (*ds.Product, error) {
