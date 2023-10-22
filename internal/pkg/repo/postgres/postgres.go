@@ -1,6 +1,8 @@
 package repo
 
 import (
+	"strings"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -39,8 +41,10 @@ func (r *Repository) GetDataServiceAll() ([]repo.DataService, error) {
 }
 
 func (r *Repository) GetActiveDataServiceFilteredByName(name string) ([]repo.DataService, error) {
+	name = strings.ToLower(name)
+
 	var dataService []repo.DataService
-	if err := r.db.Where(&repo.DataService{Active: true}).Where("data_name LIKE ?", "%"+name+"%").Find(&dataService).Error; err != nil {
+	if err := r.db.Where(&repo.DataService{Active: true}).Where("LOWER(data_name) LIKE ?", "%"+name+"%").Find(&dataService).Error; err != nil {
 		return nil, err
 	}
 
