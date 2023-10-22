@@ -11,7 +11,7 @@
     </nav>
 
     <form action="/" class="search">
-        <input type="text" name="dataname" class="search" value="{{ .filtered }}" placeholder="Search here!" />
+        <input type="text" name="dataname" class="search" value="{{ .filtered }}" placeholder="Поиск" />
         {{if .filtered}}
             <h3>Search: {{ .filtered }} </h3>
         {{end}}
