@@ -19,13 +19,19 @@
 
     <div class="cards">
         {{ range .services }}
-            <a href="service/{{ .DataID }}" class="card">
-                <div>
-                    <div class = title> {{ .DataName }} </div>
-                    <div> ID: {{ .DataID }} </div>
-                    <div style='width: 100%;'>{{ .Blob }}</div> 
-                </div>
-            </a>
+            <div class="card">
+                <form action="/" method="POST" class="delete">
+                    <input type="hidden" name="dataID" value="{{ .DataID }}" />
+                    <button class="primary" type="submit"><img src="/static/img/delete.png" /></button>
+                </form>
+                <a href="service/{{ .DataID }}">
+                    <div>
+                        <div class = title> {{ .DataName }} </div>
+                        <div> ID: {{ .DataID }} </div>
+                        <div style='width: 100%;'>{{ .Blob }}</div> 
+                    </div>
+                </a>
+            </div>
         {{ end }}
     </div>
 

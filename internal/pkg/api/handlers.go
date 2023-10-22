@@ -70,13 +70,24 @@ func filterDataService(r repo.Repository) func(c *gin.Context) {
 
 func deleteDataService(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
+		dataID, found := c.GetPostForm("dataID")
+		if !found {
+			notFound(c)
+			return
+		}
+
+		id, err := strconv.ParseUint(dataID, 10, 64)
+		if err != nil {
+			notFound(c)
+			return
+		}
+
 		if r.DeleteDataService(uint(id)) != nil {
 			notFound(c)
 			return
 		}
 
-		show := showDataService(r)
+		show := filterDataService(r)
 		show(c)
 	}
 }

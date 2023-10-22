@@ -29,11 +29,8 @@
         <h2>
             Данные: {{ .blob }}
         </h2>
-        <form action="{{ .id }}" method="POST" class="search">
-            <button class="primary" type="submit">Удалить</button>
-        </form>
     {{ else }}
-    <h1> Город удален </h1>
+    <h1> Данные удалены </h1>
     {{ end }}
     </div>
 
