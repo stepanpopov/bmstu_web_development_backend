@@ -40,7 +40,7 @@ func (r *Repository) GetDataServiceAll() ([]repo.DataService, error) {
 
 func (r *Repository) GetActiveDataServiceFilteredByName(name string) ([]repo.DataService, error) {
 	var dataService []repo.DataService
-	if err := r.db.Where(&repo.DataService{Active: true}).Where("data_name LIKE ?", name+"%").Find(&dataService).Error; err != nil {
+	if err := r.db.Where(&repo.DataService{Active: true}).Where("data_name LIKE ?", "%"+name+"%").Find(&dataService).Error; err != nil {
 		return nil, err
 	}
 
