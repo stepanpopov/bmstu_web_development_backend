@@ -45,7 +45,7 @@ type DataService struct {
 
 type EncryptDecryptRequest struct {
 	RequestID    uint
-	Status       uint
+	Status       status
 	CreationDate time.Time
 	FinishDate   time.Time
 	FormDate     time.Time
@@ -56,11 +56,7 @@ type EncryptDecryptRequest struct {
 type EncryptDecryptToData struct {
 	DataID    uint
 	RequestID uint
-}
-
-type RequestStatus struct {
-	RequestStatusID uint
-	Status          status
+	Result    string
 }
 
 func All() []any {
@@ -69,6 +65,5 @@ func All() []any {
 		&DataService{},
 		&EncryptDecryptRequest{},
 		&EncryptDecryptToData{},
-		&RequestStatus{},
 	}
 }

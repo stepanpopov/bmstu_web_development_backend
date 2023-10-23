@@ -39,17 +39,13 @@ func (s *Server) StartServer(rep repo.Repository) {
 
 	r := gin.Default()
 
-	r.LoadHTMLGlob("static/template/*")
-	r.Static("/static", "./static")
-	r.Static("/css", "./static")
-	r.Static("/img", "./static")
-
-	r.GET("/", filterDataService(rep))
-	r.POST("/", deleteDataService(rep))
-
-	r.GET("/service/*id", showDataService(rep))
+	dataService := r.Group("/dataService")
+	dataService.GET("/", getDataService(rep))
+	dataService.GET("/:id", getDataServiceByID(rep))
+	dataService.PUT("/", createDataService(rep))
+	dataService.DELETE("/", deleteDataService(rep))
+	dataService.POST("/", updateDataService(rep))
 
 	r.Run(fmt.Sprintf("%s:%d", s.host, s.port))
-
 	log.Println("Server down")
 }
