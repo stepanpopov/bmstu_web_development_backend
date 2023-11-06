@@ -5,12 +5,19 @@ import (
 	"strings"
 )
 
-func (r *Repository) GetDataServiceById(id uint) (repo.DataService, error) {
+// nil если такой заявки нет
+func (r *Repository) GetDataServiceById(id uint) (*repo.DataService, error) {
 	dataService := repo.DataService{DataID: id}
-	if err := r.db.Take(&dataService).Error; err != nil {
-		return repo.DataService{}, err
+	res := r.db.Take(&dataService)
+	if res.Error != nil {
+		return nil, res.Error
 	}
-	return dataService, nil
+
+	if res.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	return &dataService, nil
 }
 
 func (r *Repository) GetActiveDataServiceFilteredByName(name string) ([]repo.DataService, error) {
@@ -40,3 +47,8 @@ func (r *Repository) DeleteDataService(id uint) error {
 	}
 	return nil
 }
+
+/* TODO
+func (r *Repository) UpdateImage(dataID uint) error {
+
+} */

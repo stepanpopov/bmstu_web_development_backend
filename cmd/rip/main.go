@@ -6,7 +6,7 @@ import (
 	"rip/internal/config"
 	"rip/internal/dsn"
 	"rip/internal/pkg/api"
-	repo "rip/internal/pkg/repo/postgres"
+	repo "rip/internal/pkg/repo/gorm"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 
 	log.Print(conf.ServiceHost, conf.ServicePort)
 
-	repo, err := repo.New(dsn.FromEnv())
+	repo, err := repo.NewPostgres(dsn.FromEnv())
 	if err != nil {
 		log.Fatal("DB connect error:", err)
 	}

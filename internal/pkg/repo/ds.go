@@ -1,17 +1,19 @@
 package repo
 
 import (
+	"errors"
+	"strings"
 	"time"
 )
 
-type status uint
+type Status uint
 
 const (
-	draft status = iota
-	deleted
-	formed
-	finished
-	rejected
+	Draft Status = iota
+	Deleted
+	Formed
+	Finished
+	Rejected
 )
 
 /*func (s *status) Scan(value any) error {
@@ -20,8 +22,22 @@ const (
 	return []string{"draft", "deleted", "formed", "finished", "rejected"}[s], nil
 }*/
 
-func (s status) String() string {
-	strings := []string{"draft", "deleted", "formed", "finished", "rejected"}
+func convStrs() []string {
+	return []string{"draft", "deleted", "formed", "finished", "rejected"}
+}
+
+func FromString(str string) (Status, error) {
+	str = strings.ToLower(str)
+	for i, v := range convStrs() {
+		if v == str {
+			return Status(i), nil
+		}
+	}
+	return Status(0), errors.New("cant conv string to Status")
+}
+
+func (s Status) String() string {
+	strings := convStrs()
 	if int(s) >= len(strings) {
 		return "unknown"
 	}
@@ -44,9 +60,9 @@ type DataService struct {
 }
 
 type EncryptDecryptRequest struct {
-	RequestID    uint
-	Status       status
-	CreationDate time.Time
+	RequestID    uint `gorm:"primarykey"`
+	Status       Status
+	CreationDate time.Time `gorm:"default:CURRENT_TIMESTAMP()"`
 	FinishDate   time.Time
 	FormDate     time.Time
 	ModeratorID  uint
@@ -54,8 +70,8 @@ type EncryptDecryptRequest struct {
 }
 
 type EncryptDecryptToData struct {
-	DataID    uint
-	RequestID uint
+	DataID    uint `gorm:"primarykey"`
+	RequestID uint `gorm:"primarykey"`
 	Result    string
 }
 

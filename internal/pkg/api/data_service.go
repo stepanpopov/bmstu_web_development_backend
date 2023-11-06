@@ -20,7 +20,15 @@ func getDataService(r repo.Repository) func(c *gin.Context) {
 			return
 		}
 
-		c.JSON(http.StatusOK, filt)
+		draftID, err := r.GetEncryptDecryptDraftID(creatorID)
+		if err != nil {
+			respMessage(c, 500, err.Error())
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"data_service": filt,
+			"draft_id":     draftID,
+		})
 	}
 }
 
@@ -40,15 +48,9 @@ func getDataServiceByID(r repo.Repository) func(c *gin.Context) {
 
 func deleteDataService(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		var request struct {
-			ID uint `json:"id"`
-		}
-		if err := c.BindJSON(&request); err != nil {
-			respMessage(c, http.StatusBadRequest, err.Error())
-			return
-		}
+		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
 
-		if r.DeleteDataService(request.ID) != nil {
+		if r.DeleteDataService(uint(id)) != nil {
 			notFound(c)
 			return
 		}
@@ -105,5 +107,30 @@ func updateDataService(r repo.Repository) func(c *gin.Context) {
 		}
 
 		c.JSON(http.StatusOK, data)
+	}
+}
+
+/*
+TODO
+func updateImage(r repo.Repository) func(c *gin.Context) {
+	return func(c *gin.Context) {
+
+	}
+}
+*/
+
+func addToDraft(r repo.Repository) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
+
+		draftID, err := r.AddDataServiceToDraft(uint(id), creatorID)
+
+		if err != nil {
+			respMessage(c, http.StatusBadRequest, err.Error())
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"draftID": draftID,
+		})
 	}
 }

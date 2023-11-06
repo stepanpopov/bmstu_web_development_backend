@@ -9,3 +9,7 @@ func notFound(c *gin.Context) {
 func respMessage(c *gin.Context, code uint, message string) {
 	c.JSON(int(code), gin.H{"message": message})
 }
+
+func respMessageAbort(c *gin.Context, code uint, message string) {
+	c.AbortWithStatusJSON(int(code), gin.H{"message": message})
+}

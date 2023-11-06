@@ -11,7 +11,7 @@ type Repository struct {
 	db *gorm.DB
 }
 
-func New(dsn string) (*Repository, error) {
+func NewPostgres(dsn string) (*Repository, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err

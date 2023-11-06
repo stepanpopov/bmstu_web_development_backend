@@ -9,6 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	creatorID   = 0
+	moderatorID = 1
+)
+
 type Server struct {
 	host string
 	port int
@@ -34,6 +39,7 @@ func NewServer(options ...func(*Server)) *Server {
 	return srv
 }
 
+// TODO: add abort() to errors
 func (s *Server) StartServer(rep repo.Repository) {
 	log.Println("Server start up")
 
@@ -43,8 +49,12 @@ func (s *Server) StartServer(rep repo.Repository) {
 	dataService.GET("/", getDataService(rep))
 	dataService.GET("/:id", getDataServiceByID(rep))
 	dataService.PUT("/", createDataService(rep))
-	dataService.DELETE("/", deleteDataService(rep))
+	dataService.DELETE("/:id", deleteDataService(rep))
 	dataService.POST("/", updateDataService(rep))
+	dataService.PUT("/draft/:id", addToDraft(rep))
+
+	encDecRequest := r.Group("/encryptDecryptReques")
+	encDecRequest.POST("/filter", getEncryptDecryptRequests(rep))
 
 	r.Run(fmt.Sprintf("%s:%d", s.host, s.port))
 	log.Println("Server down")
