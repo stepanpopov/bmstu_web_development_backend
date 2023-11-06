@@ -156,11 +156,10 @@ func (r *Repository) GetEncryptDecryptRequestWithDataByID(requestID uint) (repo.
 }
 
 // creator
-func (r *Repository) FormEncryptDecryptRequestByID(requestID, creatorID uint) error {
+func (r *Repository) FormEncryptDecryptRequestByID(requestID uint) error {
 	var req repo.EncryptDecryptRequest
 	res := r.db.
 		Where("request_id = ?", requestID).
-		Where("creator_id = ?", creatorID).
 		Where("status = ?", repo.Draft).
 		Take(&req)
 
@@ -181,11 +180,10 @@ func (r *Repository) FormEncryptDecryptRequestByID(requestID, creatorID uint) er
 	return nil
 }
 
-func (r *Repository) DeleteEncryptDecryptRequestByID(requestID, creatorID uint) error {
+func (r *Repository) DeleteEncryptDecryptRequestByID(requestID uint) error {
 	var req repo.EncryptDecryptRequest
 	res := r.db.
 		Where("request_id = ?", requestID).
-		Where("creator_id = ?", creatorID).
 		Where("status in (?)", []repo.Status{repo.Draft, repo.Formed}).
 		Take(&req)
 

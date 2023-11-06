@@ -49,6 +49,7 @@ type User struct {
 	Username    string `gorm:"type:varchar(30)"`
 	Password    string `gorm:"type:varchar(30)"`
 	IsModerator bool   `gorm:"type:bool"`
+	Avatar      string `gorm:"varchar(255)"`
 }
 
 type DataService struct {

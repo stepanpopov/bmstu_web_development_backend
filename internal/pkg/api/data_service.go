@@ -126,11 +126,25 @@ func addToDraft(r repo.Repository) func(c *gin.Context) {
 		draftID, err := r.AddDataServiceToDraft(uint(id), creatorID)
 
 		if err != nil {
-			respMessage(c, http.StatusBadRequest, err.Error())
+			respMessageAbort(c, http.StatusBadRequest, err.Error())
+			return
 		}
 
 		c.JSON(http.StatusOK, gin.H{
 			"draftID": draftID,
 		})
+	}
+}
+
+func deleteFromDraft(r repo.Repository) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
+
+		if err := r.DeleteDataServiceFromDraft(uint(id), creatorID); err != nil {
+			respMessageAbort(c, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		respMessage(c, http.StatusOK, "deleted")
 	}
 }

@@ -15,8 +15,8 @@ type Repository interface {
 	GetEncryptDecryptDraftID(creatorID uint) (*uint, error)
 	GetEncryptDecryptRequests(status Status, startDate, endDate time.Time) ([]EncryptDecryptRequest, error)
 	GetEncryptDecryptRequestWithDataByID(requestID uint) (EncryptDecryptRequest, []DataService, error)
-	FormEncryptDecryptRequestByID(requestID, creatorID uint) error
-	DeleteEncryptDecryptRequestByID(requestID, creatorID uint) error
+	FormEncryptDecryptRequestByID(requestID uint) error
+	DeleteEncryptDecryptRequestByID(requestID uint) error
 	FinishEncryptDecryptRequestByID(requestID, moderatorID uint) error
 	RejectEncryptDecryptRequestByID(requestID, moderatorID uint) error
 }

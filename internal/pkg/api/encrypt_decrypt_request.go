@@ -47,7 +47,6 @@ func getEncryptDecryptRequestsByID(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
 
-		// TODO: creator
 		req, dataServices, err := r.GetEncryptDecryptRequestWithDataByID(uint(id))
 		if err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())
@@ -58,5 +57,78 @@ func getEncryptDecryptRequestsByID(r repo.Repository) func(c *gin.Context) {
 			"encDecReq":    req,
 			"dataServices": dataServices,
 		})
+	}
+}
+
+func createDraft(r repo.Repository) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		draftID, err := r.CreateEncryptDecryptDraft(creatorID)
+
+		if err != nil {
+			respMessageAbort(c, http.StatusBadRequest, err.Error())
+		}
+
+		c.JSON(http.StatusOK, gin.H{"draftID": draftID})
+	}
+}
+
+func deleteEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
+
+		err := r.DeleteDataService(uint(id))
+		if err != nil {
+			respMessageAbort(c, http.StatusBadRequest, err.Error())
+		}
+
+		respMessage(c, http.StatusOK, "deleted")
+	}
+}
+
+func formEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
+
+		err := r.FormEncryptDecryptRequestByID(uint(id))
+		if err != nil {
+			respMessageAbort(c, http.StatusBadRequest, err.Error())
+		}
+
+		req, dataServices, err := r.GetEncryptDecryptRequestWithDataByID(uint(id))
+		if err != nil {
+			respMessageAbort(c, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"encDecReq":    req,
+			"dataServices": dataServices,
+		})
+	}
+}
+
+func rejectEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
+
+		if err := r.RejectEncryptDecryptRequestByID(uint(id), moderatorID); err != nil {
+			respMessageAbort(c, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		respMessage(c, http.StatusOK, "rejected")
+	}
+}
+
+func finishEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
+
+		if err := r.FinishEncryptDecryptRequestByID(uint(id), moderatorID); err != nil {
+			respMessageAbort(c, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		respMessage(c, http.StatusOK, "rejected")
 	}
 }

@@ -51,10 +51,19 @@ func (s *Server) StartServer(rep repo.Repository) {
 	dataService.PUT("/", createDataService(rep))
 	dataService.DELETE("/:id", deleteDataService(rep))
 	dataService.POST("/", updateDataService(rep))
+
 	dataService.PUT("/draft/:id", addToDraft(rep))
+	dataService.DELETE("/draft/:id", deleteFromDraft(rep))
 
 	encDecRequest := r.Group("/encryptDecryptReques")
 	encDecRequest.POST("/filter", getEncryptDecryptRequests(rep))
+	encDecRequest.GET("/:id", getEncryptDecryptRequestsByID(rep))
+	encDecRequest.PUT("/", createDraft(rep))
+	encDecRequest.DELETE("/:id", deleteEncryptDecryptRequest(rep))
+	encDecRequest.GET("/form/:id", formEncryptDecryptRequest(rep))
+	encDecRequest.GET("/reject/:id", rejectEncryptDecryptRequest(rep))
+	encDecRequest.GET("/finish/:id", finishEncryptDecryptRequest(rep))
+	// TODO: get draft???
 
 	r.Run(fmt.Sprintf("%s:%d", s.host, s.port))
 	log.Println("Server down")
