@@ -7,6 +7,10 @@ import (
 	"rip/internal/dsn"
 	"rip/internal/pkg/api"
 	repo "rip/internal/pkg/repo/gorm"
+	"time"
+
+	"rip/internal/pkg/repo/s3"
+	"rip/internal/pkg/s3/minio"
 )
 
 func main() {
@@ -27,5 +31,34 @@ func main() {
 		api.WithPort(conf.ServicePort),
 	)
 
-	serv.StartServer(repo)
+	// TODO: env and config
+	minioCl, err := minio.MakeS3MinioClient("localhost:9000", "minio", "minio124")
+	if err != nil {
+		log.Fatal("S3 connect error:", err)
+	}
+	minioCl.IsOnline()
+
+	cancelHC, err := minioCl.HealthCheck(time.Second * 3)
+	if err != nil {
+		log.Fatal("S3 health check error:", err)
+	}
+
+	t := time.NewTimer(time.Second * 20)
+
+loop:
+	for {
+		select {
+		case <-t.C:
+			log.Fatal("S3 health check failed")
+		default:
+			if minioCl.IsOnline() {
+				cancelHC()
+				break loop
+			}
+		}
+	}
+
+	avatar := s3.NewS3MinioAvatarSaver("avatars", minioCl)
+
+	serv.StartServer(repo, avatar)
 }

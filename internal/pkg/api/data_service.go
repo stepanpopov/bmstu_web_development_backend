@@ -22,7 +22,8 @@ func getDataService(r repo.Repository) func(c *gin.Context) {
 
 		draftID, err := r.GetEncryptDecryptDraftID(creatorID)
 		if err != nil {
-			respMessage(c, 500, err.Error())
+			respMessageAbort(c, 500, err.Error())
+			return
 		}
 
 		c.JSON(http.StatusOK, gin.H{
@@ -34,8 +35,8 @@ func getDataService(r repo.Repository) func(c *gin.Context) {
 
 func getDataServiceByID(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
-
+		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+		print(id)
 		d, err := r.GetDataServiceById(uint(id))
 		if err != nil {
 			respMessage(c, 404, "not found")
@@ -46,13 +47,18 @@ func getDataServiceByID(r repo.Repository) func(c *gin.Context) {
 	}
 }
 
-func deleteDataService(r repo.Repository) func(c *gin.Context) {
+func deleteDataService(r repo.Repository, a repo.Avatar) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
+		id, _ := strconv.ParseUint(c.Param("id")[:], 10, 64)
 
-		if r.DeleteDataService(uint(id)) != nil {
+		avatarUUID, err := r.DeleteDataService(uint(id))
+		if err != nil {
 			notFound(c)
 			return
+		}
+
+		if err := a.Delete(c, avatarUUID); err != nil {
+			respMessageAbort(c, http.StatusInternalServerError, "не получается удалить картинку")
 		}
 
 		respMessage(c, http.StatusOK, "deleted")
@@ -66,22 +72,26 @@ func createDataService(r repo.Repository) func(c *gin.Context) {
 			respMessage(c, http.StatusBadRequest, err.Error())
 			return
 		}
+		data.DataID = 0
+		data.Active = true
 
 		if strings.ReplaceAll(data.DataName, " ", "") == "" ||
 			strings.ReplaceAll(data.Blob, " ", "") == "" ||
-			len(data.DataName) > 30 ||
-			data.DataID == 0 {
+			len(data.DataName) > 30 {
 
 			respMessage(c, http.StatusBadRequest, "invalid input")
 			return
 		}
 
-		if err := r.CreateDataService(data); err != nil {
+		dataID, err := r.CreateDataService(data)
+		if err != nil {
 			respMessage(c, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		respMessage(c, http.StatusCreated, "created")
+		c.JSON(http.StatusCreated, gin.H{
+			"data_id": dataID,
+		})
 	}
 }
 
@@ -110,18 +120,41 @@ func updateDataService(r repo.Repository) func(c *gin.Context) {
 	}
 }
 
-/*
-TODO
-func updateImage(r repo.Repository) func(c *gin.Context) {
+func putImage(r repo.Repository, a repo.Avatar) func(c *gin.Context) {
 	return func(c *gin.Context) {
+		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
+		form, err := c.MultipartForm()
+		if err != nil {
+			respMessageAbort(c, http.StatusBadRequest, "не получается достать изображение")
+			return
+		}
+		fileHeader := form.File["avatar"][0]
+		// TODO: check fileHeader.Header
+		avatar, err := form.File["avatar"][0].Open()
+		if err != nil {
+			respMessageAbort(c, http.StatusBadRequest, "не получается достать изображение:")
+			return
+		}
+
+		avatarUUID, err := a.Put(c, avatar, fileHeader.Size)
+		if err != nil {
+			respMessageAbort(c, http.StatusInternalServerError, "не получается сохранить изображение: "+err.Error())
+			return
+		}
+
+		if err := r.UpdateImageUUID(avatarUUID, uint(id)); err != nil {
+			respMessageAbort(c, http.StatusInternalServerError, "не получается сохранить изображение")
+			return
+		}
+
+		respMessage(c, http.StatusOK, "uploaded")
 	}
 }
-*/
 
 func addToDraft(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
+		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 		draftID, err := r.AddDataServiceToDraft(uint(id), creatorID)
 
@@ -138,7 +171,7 @@ func addToDraft(r repo.Repository) func(c *gin.Context) {
 
 func deleteFromDraft(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		id, _ := strconv.ParseUint(c.Param("id")[1:], 10, 64)
+		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 		if err := r.DeleteDataServiceFromDraft(uint(id), creatorID); err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())

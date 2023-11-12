@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	creatorID   = 0
+	creatorID   = 1
 	moderatorID = 1
 )
 
@@ -40,7 +40,7 @@ func NewServer(options ...func(*Server)) *Server {
 }
 
 // TODO: add abort() to errors
-func (s *Server) StartServer(rep repo.Repository) {
+func (s *Server) StartServer(rep repo.Repository, avatar repo.Avatar) {
 	log.Println("Server start up")
 
 	r := gin.Default()
@@ -49,13 +49,14 @@ func (s *Server) StartServer(rep repo.Repository) {
 	dataService.GET("/", getDataService(rep))
 	dataService.GET("/:id", getDataServiceByID(rep))
 	dataService.PUT("/", createDataService(rep))
-	dataService.DELETE("/:id", deleteDataService(rep))
+	dataService.DELETE("/:id", deleteDataService(rep, avatar))
 	dataService.POST("/", updateDataService(rep))
+	dataService.PUT("/:id/image", putImage(rep, avatar))
 
 	dataService.PUT("/draft/:id", addToDraft(rep))
 	dataService.DELETE("/draft/:id", deleteFromDraft(rep))
 
-	encDecRequest := r.Group("/encryptDecryptReques")
+	encDecRequest := r.Group("/encryptDecryptRequest")
 	encDecRequest.POST("/filter", getEncryptDecryptRequests(rep))
 	encDecRequest.GET("/:id", getEncryptDecryptRequestsByID(rep))
 	encDecRequest.PUT("/", createDraft(rep))

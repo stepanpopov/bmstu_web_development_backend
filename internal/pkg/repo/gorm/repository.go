@@ -3,6 +3,7 @@ package repo
 import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	"rip/internal/pkg/repo"
 )
@@ -12,10 +13,13 @@ type Repository struct {
 }
 
 func NewPostgres(dsn string) (*Repository, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		return nil, err
 	}
+	db.Logger.LogMode(logger.Info)
 
 	return &Repository{
 		db: db,

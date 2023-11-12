@@ -4,6 +4,8 @@ import (
 	"errors"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Status uint
@@ -53,21 +55,22 @@ type User struct {
 }
 
 type DataService struct {
-	DataID   uint   `gorm:"primarykey"`
-	DataName string `gorm:"type:varchar(30)"`
-	Encode   bool   `gorm:"type:bool"`
-	Blob     string `gorm:"type:text"`
-	Active   bool   `gorm:"type:bool"`
+	DataID    uint      `gorm:"primarykey" json:"data_id"`
+	DataName  string    `gorm:"type:varchar(30)" json:"data_name"`
+	Encode    bool      `gorm:"type:bool" json:"encode"`
+	Blob      string    `gorm:"type:text" json:"blob"`
+	Active    bool      `gorm:"type:bool" json:"active"`
+	ImageUUID uuid.UUID `json:"image_uuid,omitempty"`
 }
 
 type EncryptDecryptRequest struct {
 	RequestID    uint `gorm:"primarykey"`
 	Status       Status
-	CreationDate time.Time `gorm:"default:CURRENT_TIMESTAMP()"`
-	FinishDate   time.Time
-	FormDate     time.Time
-	ModeratorID  uint
-	CreatorID    uint
+	CreationDate time.Time `gorm:"default:NOW()"`
+	FinishDate   *time.Time
+	FormDate     *time.Time
+	ModeratorID  *uint
+	CreatorID    *uint
 }
 
 type EncryptDecryptToData struct {

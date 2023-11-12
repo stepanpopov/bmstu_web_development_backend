@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"gorm.io/gorm/clause"
+	"gorm.io/gorm"
 )
 
 // TODO: можно ли добавить услугу после формирования???
@@ -14,11 +14,12 @@ import (
 
 func (r *Repository) CreateEncryptDecryptDraft(creatorID uint) (uint, error) {
 	request := repo.EncryptDecryptRequest{
-		CreatorID:    creatorID,
+		CreatorID:    &creatorID,
 		Status:       repo.Draft,
 		CreationDate: r.db.NowFunc(),
 	}
-	if err := r.db.Clauses(clause.Returning{}).Select("request_id").Create(&request).Error; err != nil {
+
+	if err := r.db.Create(&request).Error; err != nil {
 		return 0, err
 	}
 	return request.RequestID, nil
@@ -34,7 +35,7 @@ func (r *Repository) AddDataServiceToDraft(dataID uint, creatorID uint) (uint, e
 	if data == nil {
 		return 0, errors.New("нет такой услуги")
 	}
-	if data.Active {
+	if !data.Active {
 		return 0, errors.New("услуга удалена")
 	}
 
@@ -109,12 +110,14 @@ func (r *Repository) GetEncryptDecryptDraftID(creatorID uint) (*uint, error) {
 	var draftReq repo.EncryptDecryptRequest
 	res := r.db.Where("creator_id = ?", creatorID).Where("status = ?", repo.Draft).Take(&draftReq)
 
+	if errors.Is(gorm.ErrRecordNotFound, res.Error) {
+		return nil, nil
+	}
+
 	if res.Error != nil {
 		return nil, res.Error
 	}
-	if res.RowsAffected == 0 {
-		return nil, nil
-	}
+
 	return &draftReq.RequestID, nil
 }
 
@@ -134,22 +137,26 @@ func (r *Repository) GetEncryptDecryptRequests(status repo.Status, startDate, en
 }
 
 func (r *Repository) GetEncryptDecryptRequestWithDataByID(requestID uint) (repo.EncryptDecryptRequest, []repo.DataService, error) {
+	if requestID == 0 {
+		return repo.EncryptDecryptRequest{}, nil, errors.New("record not found")
+	}
+
 	request := repo.EncryptDecryptRequest{RequestID: requestID}
-	if err := r.db.First(&request); err != nil {
-		return repo.EncryptDecryptRequest{}, nil, nil
+	res := r.db.Take(&request)
+	if err := res.Error; err != nil {
+		return repo.EncryptDecryptRequest{}, nil, err
 	}
 
 	var dataService []repo.DataService
 	// TODO: test
-	res := r.db.
-		Table("encrypt_decrypt_to_data").
-		Where("request_id = ?", requestID).
-		Joins("JOIN data_service d on d.data_id = encrypt_decrypt_to_data.data_id").
+	res = r.db.
+		Table("data_services").
 		Where("active = ?", true).
+		Joins("JOIN encrypt_decrypt_to_data e on data_services.data_id = e.data_id and e.request_id = ?", requestID).
 		Find(&dataService)
 
 	if err := res.Error; err != nil {
-		return repo.EncryptDecryptRequest{}, nil, nil
+		return repo.EncryptDecryptRequest{}, nil, err
 	}
 
 	return request, dataService, nil
@@ -171,7 +178,8 @@ func (r *Repository) FormEncryptDecryptRequestByID(requestID uint) error {
 	}
 
 	req.Status = repo.Formed
-	req.FormDate = r.db.NowFunc() // наверно не прокнет тк это алиас к time.Now().Local()
+	now := r.db.NowFunc()
+	req.FormDate = &now // наверно не прокнет тк это алиас к time.Now().Local()
 
 	if err := r.db.Save(&req).Error; err != nil {
 		return err
@@ -217,7 +225,7 @@ func (r *Repository) finishRejectHelper(status repo.Status, requestID, moderator
 	var req repo.EncryptDecryptRequest
 	res := r.db.
 		Where("request_id = ?", requestID).
-		Where("status = ?", repo.Draft).
+		Where("status = ?", repo.Formed).
 		Take(&req)
 
 	if res.Error != nil {
@@ -227,12 +235,13 @@ func (r *Repository) finishRejectHelper(status repo.Status, requestID, moderator
 		return errors.New("нет такой заявки")
 	}
 
-	req.ModeratorID = moderatorID
+	req.ModeratorID = &moderatorID
 	req.Status = status
 	/*if req.Status == repo.Finished {
 		TODO: добавить результат в мм
 	}*/
-	req.FinishDate = r.db.NowFunc() // наверно не прокнет тк это алиас к time.Now().Local()
+	now := r.db.NowFunc()
+	req.FinishDate = &now // наверно не прокнет тк это алиас к time.Now().Local()
 
 	if err := r.db.Save(&req).Error; err != nil {
 		return err
