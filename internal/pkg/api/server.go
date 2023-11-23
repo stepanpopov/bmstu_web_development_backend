@@ -46,24 +46,26 @@ func (s *Server) StartServer(rep repo.Repository, avatar repo.Avatar) {
 	r := gin.Default()
 
 	dataService := r.Group("/dataService")
-	dataService.GET("/", getDataService(rep))
+	dataService.GET("/", filterDataService(rep))
 	dataService.GET("/:id", getDataServiceByID(rep))
-	dataService.PUT("/", createDataService(rep))
+	dataService.POST("/", createDataService(rep))
 	dataService.DELETE("/:id", deleteDataService(rep, avatar))
-	dataService.POST("/", updateDataService(rep))
-	dataService.PUT("/:id/image", putImage(rep, avatar))
+	dataService.PUT("/", updateDataService(rep))
+	dataService.POST("/:id/image", putImage(rep, avatar))
 
-	dataService.PUT("/draft/:id", addToDraft(rep))
-	dataService.DELETE("/draft/:id", deleteFromDraft(rep))
+	dataService.POST("/draft/:id", addToDraft(rep))
+	dataService.DELETE("/draft/:id", deleteFromDraft(rep)) //
 
 	encDecRequest := r.Group("/encryptDecryptRequest")
-	encDecRequest.POST("/filter", getEncryptDecryptRequests(rep))
+	encDecRequest.GET("/filter", getEncryptDecryptRequests(rep))
 	encDecRequest.GET("/:id", getEncryptDecryptRequestsByID(rep))
-	encDecRequest.PUT("/", createDraft(rep))
+	encDecRequest.POST("/", createDraft(rep))
+	encDecRequest.PUT("/form/:id", formEncryptDecryptRequest(rep))
+	encDecRequest.PUT("/update_moderator/:id", updateModeratorEncryptDecryptRequest(rep))
 	encDecRequest.DELETE("/:id", deleteEncryptDecryptRequest(rep))
-	encDecRequest.GET("/form/:id", formEncryptDecryptRequest(rep))
-	encDecRequest.GET("/reject/:id", rejectEncryptDecryptRequest(rep))
-	encDecRequest.GET("/finish/:id", finishEncryptDecryptRequest(rep))
+	encDecRequest.DELETE("/:req_id/delete/:data_id", deleteDataFromEncryptDecryptRequest(rep))
+
+	// удаление услуги из заявки + мб тогда delete draft не нужен
 	// TODO: get draft???
 
 	r.Run(fmt.Sprintf("%s:%d", s.host, s.port))

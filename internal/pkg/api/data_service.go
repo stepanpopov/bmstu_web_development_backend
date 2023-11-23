@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func getDataService(r repo.Repository) func(c *gin.Context) {
+func filterDataService(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		queryText, _ := c.GetQuery("dataname")
 
@@ -27,7 +27,7 @@ func getDataService(r repo.Repository) func(c *gin.Context) {
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"data_service": filt,
+			"data_service": toViewSlice(filt),
 			"draft_id":     draftID,
 		})
 	}
@@ -43,7 +43,7 @@ func getDataServiceByID(r repo.Repository) func(c *gin.Context) {
 			return
 		}
 
-		c.JSON(http.StatusOK, d)
+		c.JSON(http.StatusOK, toView(*d))
 	}
 }
 
@@ -116,7 +116,7 @@ func updateDataService(r repo.Repository) func(c *gin.Context) {
 			respMessage(c, http.StatusOK, "deleted")
 		}
 
-		c.JSON(http.StatusOK, data)
+		c.JSON(http.StatusOK, toView(data))
 	}
 }
 

@@ -95,9 +95,42 @@ func (r *Repository) DeleteDataServiceFromDraft(dataID uint, creatorID uint) err
 	}
 
 	// удаляем услугу из черновика
-	var requestToData repo.EncryptDecryptToData
+	requestToData := repo.EncryptDecryptToData{
+		DataID:    dataID,
+		RequestID: *draftRequestID,
+	}
 
 	// TODO: если не нашли??
+	if err := r.db.Delete(&requestToData).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repository) DeleteDataServiceFromEncryptDecryptRequest(dataID uint, reqID uint) error {
+	// получаем услугу
+	data, err := r.GetDataServiceById(dataID)
+	if err != nil {
+		return err
+	}
+
+	if data == nil {
+		return errors.New("нет такой услуги")
+	}
+	if data.Active {
+		return errors.New("услуга удалена")
+	}
+
+	// получаем заявку
+	// TODO: проверить заявку
+
+	// удаляем услугу из черновика
+	requestToData := repo.EncryptDecryptToData{
+		DataID:    data.DataID,
+		RequestID: reqID,
+	}
+
 	if err := r.db.Delete(&requestToData).Error; err != nil {
 		return err
 	}
@@ -124,7 +157,11 @@ func (r *Repository) GetEncryptDecryptDraftID(creatorID uint) (*uint, error) {
 func (r *Repository) GetEncryptDecryptRequests(status repo.Status, startDate, endDate time.Time) ([]repo.EncryptDecryptRequest, error) {
 	var requests []repo.EncryptDecryptRequest
 
-	filterCond := r.db.Where("status = ?", status).Where("form_date > ?", startDate)
+	filterCond := r.db.Where("form_date > ?", startDate)
+	if status != repo.UnknownStatus {
+		filterCond = filterCond.Where("status = ?", status)
+	}
+
 	if !endDate.IsZero() {
 		filterCond = filterCond.Where("form_date < ?", endDate)
 	}

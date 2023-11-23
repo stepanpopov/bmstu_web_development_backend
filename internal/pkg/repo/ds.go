@@ -16,6 +16,7 @@ const (
 	Formed
 	Finished
 	Rejected
+	UnknownStatus
 )
 
 /*func (s *status) Scan(value any) error {
@@ -51,7 +52,6 @@ type User struct {
 	Username    string `gorm:"type:varchar(30)"`
 	Password    string `gorm:"type:varchar(30)"`
 	IsModerator bool   `gorm:"type:bool"`
-	Avatar      string `gorm:"varchar(255)"`
 }
 
 type DataService struct {
@@ -61,6 +61,15 @@ type DataService struct {
 	Blob      string    `gorm:"type:text" json:"blob"`
 	Active    bool      `gorm:"type:bool" json:"active"`
 	ImageUUID uuid.UUID `json:"image_uuid,omitempty"`
+}
+
+type DataServiceView struct {
+	DataID   uint   `json:"data_id"`
+	DataName string `json:"data_name"`
+	Encode   bool   `json:"encode"`
+	Blob     string `json:"blob"`
+	Active   bool   `json:"active"`
+	ImageURL string `json:"image_url,omitempty"`
 }
 
 type EncryptDecryptRequest struct {

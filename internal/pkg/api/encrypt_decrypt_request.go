@@ -11,39 +11,45 @@ import (
 
 func getEncryptDecryptRequests(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		var request struct {
-			Status    string `json:"status"`
-			StartDate string `json:"start_date"`
-			EndDate   string `json:"end_date"`
-		}
 		const layoutDate = "2006-01-02"
+		statusQuery, hasStatus := c.GetQuery("status")
+		startDateQuery, hasStDate := c.GetQuery("start_date")
+		endDateQuery, hasEnDate := c.GetQuery("end_date")
 
-		if err := c.BindJSON(&request); err != nil {
-			respMessageAbort(c, http.StatusBadRequest, err.Error())
-			return
+		var status repo.Status
+		if hasStatus {
+			status = repo.UnknownStatus
+		} else {
+			var err error
+			status, err = repo.FromString(statusQuery)
+			if err != nil || status == repo.Deleted {
+				respMessageAbort(c, http.StatusBadRequest, "невалидный статус")
+				return
+			}
 		}
 
-		status, err := repo.FromString(request.Status)
-		if err != nil {
-			respMessageAbort(c, http.StatusBadRequest, "невалидный статус")
-			return
+		var startDate, endDate time.Time
+		if hasStDate {
+			var err error
+			startDate, err = time.Parse(layoutDate, startDateQuery)
+			if err != nil {
+				respMessageAbort(c, http.StatusBadRequest, "start_date invlaid format")
+				return
+			}
 		}
 
-		startDate, err := time.Parse(layoutDate, request.StartDate)
-		if err != nil {
-			respMessageAbort(c, http.StatusBadRequest, "start_date invlaid format")
-			return
-		}
+		if hasEnDate {
+			var err error
+			endDate, err = time.Parse(layoutDate, endDateQuery)
+			if err != nil {
+				respMessageAbort(c, http.StatusBadRequest, "end_date invlaid format")
+				return
+			}
 
-		endDate, err := time.Parse(layoutDate, request.EndDate)
-		if err != nil {
-			respMessageAbort(c, http.StatusBadRequest, "end_date invlaid format")
-			return
-		}
-
-		if endDate.Before(startDate) {
-			respMessageAbort(c, http.StatusBadRequest, "end_date должна быть позже start_date")
-			return
+			if endDate.Before(startDate) {
+				respMessageAbort(c, http.StatusBadRequest, "end_date должна быть позже start_date")
+				return
+			}
 		}
 
 		requests, err := r.GetEncryptDecryptRequests(status, startDate, endDate)
@@ -69,7 +75,7 @@ func getEncryptDecryptRequestsByID(r repo.Repository) func(c *gin.Context) {
 
 		c.JSON(http.StatusOK, gin.H{
 			"encDecReq":    req,
-			"dataServices": dataServices,
+			"dataServices": toViewSlice(dataServices),
 		})
 	}
 }
@@ -117,33 +123,51 @@ func formEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
 
 		c.JSON(http.StatusOK, gin.H{
 			"encDecReq":    req,
-			"dataServices": dataServices,
+			"dataServices": toViewSlice(dataServices),
 		})
 	}
 }
 
-func rejectEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
+func updateModeratorEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-		if err := r.RejectEncryptDecryptRequestByID(uint(id), moderatorID); err != nil {
-			respMessageAbort(c, http.StatusBadRequest, err.Error())
+		type Action struct {
+			Action string
+		}
+		actionReq := Action{}
+
+		if err := c.BindJSON(&actionReq); err != nil {
+			respMessage(c, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		respMessage(c, http.StatusOK, "rejected")
+		if actionReq.Action == "reject" {
+			if err := r.RejectEncryptDecryptRequestByID(uint(id), moderatorID); err != nil {
+				respMessageAbort(c, http.StatusBadRequest, err.Error())
+				return
+			}
+			respMessage(c, http.StatusOK, "rejected")
+		} else if actionReq.Action == "finish" {
+			if err := r.FinishEncryptDecryptRequestByID(uint(id), moderatorID); err != nil {
+				respMessageAbort(c, http.StatusBadRequest, err.Error())
+				return
+			}
+			respMessage(c, http.StatusOK, "finished")
+		}
 	}
 }
 
-func finishEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
+func deleteDataFromEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+		reqID, _ := strconv.ParseUint(c.Param("req_id"), 10, 64)
+		dataID, _ := strconv.ParseUint(c.Param("data_id"), 10, 64)
 
-		if err := r.FinishEncryptDecryptRequestByID(uint(id), moderatorID); err != nil {
+		if err := r.DeleteDataServiceFromEncryptDecryptRequest(uint(dataID), uint(reqID)); err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		respMessage(c, http.StatusOK, "finished")
+		respMessage(c, http.StatusOK, "deleted")
 	}
 }

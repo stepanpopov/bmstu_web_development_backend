@@ -26,6 +26,7 @@ type Repository interface {
 	DeleteEncryptDecryptRequestByID(requestID uint) error
 	FinishEncryptDecryptRequestByID(requestID, moderatorID uint) error
 	RejectEncryptDecryptRequestByID(requestID, moderatorID uint) error
+	DeleteDataServiceFromEncryptDecryptRequest(dataID uint, reqID uint) error
 }
 
 type Avatar interface {
