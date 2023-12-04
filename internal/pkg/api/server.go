@@ -62,7 +62,7 @@ func (s *Server) StartServer(rep repo.Repository, avatar repo.Avatar) {
 	encDecRequest.POST("/", createDraft(rep))
 	encDecRequest.PUT("/form/:id", formEncryptDecryptRequest(rep))
 	encDecRequest.PUT("/update_moderator/:id", updateModeratorEncryptDecryptRequest(rep))
-	encDecRequest.DELETE("/:id", deleteEncryptDecryptRequest(rep))
+	encDecRequest.DELETE("/:req_id", deleteEncryptDecryptRequest(rep))
 	encDecRequest.DELETE("/:req_id/delete/:data_id", deleteDataFromEncryptDecryptRequest(rep))
 
 	// удаление услуги из заявки + мб тогда delete draft не нужен

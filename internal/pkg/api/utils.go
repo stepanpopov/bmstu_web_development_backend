@@ -20,8 +20,8 @@ func respMessageAbort(c *gin.Context, code uint, message string) {
 
 const s3Url = "http://localhost:9001/images/"
 
-func toView(d repo.DataService) repo.DataServiceView {
-	return repo.DataServiceView{
+func toView(d repo.DataService) DataServiceView {
+	return DataServiceView{
 		DataID:   d.DataID,
 		DataName: d.DataName,
 		Encode:   d.Encode,
@@ -31,8 +31,17 @@ func toView(d repo.DataService) repo.DataServiceView {
 	}
 }
 
-func toViewSlice(dd []repo.DataService) []repo.DataServiceView {
-	var view []repo.DataServiceView
+type DataServiceView struct {
+	DataID   uint   `json:"data_id"`
+	DataName string `json:"data_name"`
+	Encode   bool   `json:"encode"`
+	Blob     string `json:"blob"`
+	Active   bool   `json:"active"`
+	ImageURL string `json:"image_url,omitempty"`
+}
+
+func toViewSlice(dd []repo.DataService) []DataServiceView {
+	var view []DataServiceView
 	for _, d := range dd {
 		view = append(view, toView(d))
 	}

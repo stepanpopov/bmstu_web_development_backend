@@ -2,6 +2,7 @@ package repo
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -30,8 +31,11 @@ func convStrs() []string {
 }
 
 func FromString(str string) (Status, error) {
+	fmt.Println(str)
 	str = strings.ToLower(str)
+	fmt.Println(str)
 	for i, v := range convStrs() {
+		fmt.Println(v, str)
 		if v == str {
 			return Status(i), nil
 		}
@@ -63,15 +67,6 @@ type DataService struct {
 	ImageUUID uuid.UUID `json:"image_uuid,omitempty"`
 }
 
-type DataServiceView struct {
-	DataID   uint   `json:"data_id"`
-	DataName string `json:"data_name"`
-	Encode   bool   `json:"encode"`
-	Blob     string `json:"blob"`
-	Active   bool   `json:"active"`
-	ImageURL string `json:"image_url,omitempty"`
-}
-
 type EncryptDecryptRequest struct {
 	RequestID    uint `gorm:"primarykey"`
 	Status       Status
@@ -80,6 +75,16 @@ type EncryptDecryptRequest struct {
 	FormDate     *time.Time
 	ModeratorID  *uint
 	CreatorID    *uint
+}
+
+type EncryptDecryptRequestView struct {
+	RequestID    uint `gorm:"primarykey"`
+	Status       Status
+	CreationDate time.Time `gorm:"default:NOW()"`
+	FinishDate   *time.Time
+	FormDate     *time.Time
+	Moderator    *string `gorm:"column:username"`
+	Creator      *string `gorm:"column:username"`
 }
 
 type EncryptDecryptToData struct {

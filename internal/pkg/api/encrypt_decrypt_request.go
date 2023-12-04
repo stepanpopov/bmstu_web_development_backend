@@ -17,7 +17,7 @@ func getEncryptDecryptRequests(r repo.Repository) func(c *gin.Context) {
 		endDateQuery, hasEnDate := c.GetQuery("end_date")
 
 		var status repo.Status
-		if hasStatus {
+		if !hasStatus {
 			status = repo.UnknownStatus
 		} else {
 			var err error
@@ -94,7 +94,7 @@ func createDraft(r repo.Repository) func(c *gin.Context) {
 
 func deleteEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+		id, _ := strconv.ParseUint(c.Param("req_id"), 10, 64)
 
 		err := r.DeleteEncryptDecryptRequestByID(uint(id))
 		if err != nil {

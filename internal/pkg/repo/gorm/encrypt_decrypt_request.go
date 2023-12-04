@@ -154,10 +154,13 @@ func (r *Repository) GetEncryptDecryptDraftID(creatorID uint) (*uint, error) {
 	return &draftReq.RequestID, nil
 }
 
-func (r *Repository) GetEncryptDecryptRequests(status repo.Status, startDate, endDate time.Time) ([]repo.EncryptDecryptRequest, error) {
-	var requests []repo.EncryptDecryptRequest
+func (r *Repository) GetEncryptDecryptRequests(status repo.Status, startDate, endDate time.Time) ([]repo.EncryptDecryptRequestView, error) {
+	var requests []repo.EncryptDecryptRequestView
 
-	filterCond := r.db.Where("form_date > ?", startDate)
+	filterCond := r.db.
+		Table("encrypt_decrypt_requests AS e").
+		Where("form_date > ?", startDate)
+
 	if status != repo.UnknownStatus {
 		filterCond = filterCond.Where("status = ?", status)
 	}
@@ -166,22 +169,37 @@ func (r *Repository) GetEncryptDecryptRequests(status repo.Status, startDate, en
 		filterCond = filterCond.Where("form_date < ?", endDate)
 	}
 
-	if err := filterCond.Find(&requests).Error; err != nil {
+	if err := filterCond.
+		Joins("LEFT JOIN users u1 on e.moderator_id = u1.user_id").
+		Joins("LEFT JOIN users u2 on e.creator_id = u2.user_id").
+		Select([]string{"e.request_id", "e.status", "e.creation_date", "e.finish_date", "e.form_date",
+			"u1.username", "u2.username",
+		}).
+		Find(&requests).Error; err != nil {
 		return nil, err
 	}
 
 	return requests, nil
 }
 
-func (r *Repository) GetEncryptDecryptRequestWithDataByID(requestID uint) (repo.EncryptDecryptRequest, []repo.DataService, error) {
+func (r *Repository) GetEncryptDecryptRequestWithDataByID(requestID uint) (repo.EncryptDecryptRequestView, []repo.DataService, error) {
 	if requestID == 0 {
-		return repo.EncryptDecryptRequest{}, nil, errors.New("record not found")
+		return repo.EncryptDecryptRequestView{}, nil, errors.New("record not found")
 	}
 
-	request := repo.EncryptDecryptRequest{RequestID: requestID}
-	res := r.db.Take(&request)
+	reqView := repo.EncryptDecryptRequestView{RequestID: requestID}
+
+	res := r.db.
+		Table("encrypt_decrypt_requests AS e").
+		Joins("LEFT JOIN users u1 on e.moderator_id = u1.user_id").
+		Joins("LEFT JOIN users u2 on e.creator_id = u2.user_id").
+		Select([]string{"e.request_id", "e.status", "e.creation_date", "e.finish_date", "e.form_date",
+			"u1.username", "u2.username",
+		}).
+		Take(&reqView)
+
 	if err := res.Error; err != nil {
-		return repo.EncryptDecryptRequest{}, nil, err
+		return repo.EncryptDecryptRequestView{}, nil, err
 	}
 
 	var dataService []repo.DataService
@@ -193,10 +211,10 @@ func (r *Repository) GetEncryptDecryptRequestWithDataByID(requestID uint) (repo.
 		Find(&dataService)
 
 	if err := res.Error; err != nil {
-		return repo.EncryptDecryptRequest{}, nil, err
+		return repo.EncryptDecryptRequestView{}, nil, err
 	}
 
-	return request, dataService, nil
+	return reqView, dataService, nil
 }
 
 // creator
