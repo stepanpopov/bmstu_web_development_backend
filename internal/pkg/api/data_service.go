@@ -20,7 +20,7 @@ func filterDataService(r repo.Repository) func(c *gin.Context) {
 			return
 		}
 
-		draftID, err := r.GetEncryptDecryptDraftID(creatorID)
+		draftID, err := r.GetEncryptDecryptDraftID(getUserUUIDFromCtx(c))
 		if err != nil {
 			respMessageAbort(c, 500, err.Error())
 			return
@@ -156,7 +156,7 @@ func addToDraft(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-		draftID, err := r.AddDataServiceToDraft(uint(id), creatorID)
+		draftID, err := r.AddDataServiceToDraft(uint(id), getUserUUIDFromCtx(c))
 
 		if err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())
@@ -173,7 +173,7 @@ func deleteFromDraft(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-		if err := r.DeleteDataServiceFromDraft(uint(id), creatorID); err != nil {
+		if err := r.DeleteDataServiceFromDraft(uint(id), getUserUUIDFromCtx(c)); err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())
 			return
 		}

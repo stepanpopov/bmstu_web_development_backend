@@ -1,9 +1,14 @@
 package api
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
+	"rip/internal/pkg/api/consts"
 	"rip/internal/pkg/repo"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func notFound(c *gin.Context) {
@@ -46,4 +51,25 @@ func toViewSlice(dd []repo.DataService) []DataServiceView {
 		view = append(view, toView(d))
 	}
 	return view
+}
+
+func generateHashString(s string) string {
+	h := sha1.New()
+	h.Write([]byte(s))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func getUserUUIDFromCtx(c *gin.Context) uuid.UUID {
+	userID, _ := c.Get(consts.UserUUIDCtxParam)
+	userIDCasted := userID.(uuid.UUID)
+	return userIDCasted
+}
+
+func getJWTStr(gCtx *gin.Context) string {
+	jwtStr := gCtx.GetHeader("Authorization")
+	if !strings.HasPrefix(jwtStr, consts.JwtPrefix) {
+		return ""
+	}
+	// отрезаем префикс
+	return jwtStr[len(consts.JwtPrefix):]
 }

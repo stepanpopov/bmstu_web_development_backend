@@ -24,6 +24,14 @@ x-minio-common: &minio-common
     retries: 3
 
 services:
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass password
+    volumes:
+      - redis-data:/data
   db:
       container_name: db
       image: postgres:14
@@ -96,4 +104,6 @@ volumes:
   data4-1:
   data4-2:
   postgresdb-data:
+  redis-data:
+    driver: local
   

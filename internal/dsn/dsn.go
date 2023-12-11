@@ -8,8 +8,6 @@ import (
 )
 
 func FromEnv() string {
-	_ = godotenv.Load()
-
 	host := os.Getenv("DB_HOST")
 	if host == "" {
 		return ""
@@ -21,4 +19,8 @@ func FromEnv() string {
 	dbname := os.Getenv("DB_NAME")
 
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, pass, dbname)
+}
+
+func init() {
+	_ = godotenv.Load()
 }

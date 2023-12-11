@@ -2,7 +2,10 @@ package config
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 
@@ -12,7 +15,30 @@ import (
 type Config struct {
 	ServiceHost string
 	ServicePort int
+	JWT         JWTConfig
+	Redis       RedisConfig
 }
+
+type JWTConfig struct {
+	Secret    string
+	ExpiresIn time.Duration
+}
+
+type RedisConfig struct {
+	Host        string
+	Password    string
+	Port        int
+	User        string
+	DialTimeout time.Duration
+	ReadTimeout time.Duration
+}
+
+const (
+	envRedisHost = "REDIS_HOST"
+	envRedisPort = "REDIS_PORT"
+	envRedisUser = "REDIS_USER"
+	envRedisPass = "REDIS_PASSWORD"
+)
 
 func NewConfig(ctx context.Context) (*Config, error) {
 	var err error
@@ -39,6 +65,19 @@ func NewConfig(ctx context.Context) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	cfg.JWT.Secret = "rust manipulates memory much more efficiently"
+	cfg.JWT.ExpiresIn = time.Duration(time.Hour * 24 * 365)
+
+	cfg.Redis.Host = os.Getenv(envRedisHost)
+	cfg.Redis.Port, err = strconv.Atoi(os.Getenv(envRedisPort))
+
+	if err != nil {
+		return nil, fmt.Errorf("redis port must be int value: %w", err)
+	}
+
+	cfg.Redis.Password = os.Getenv(envRedisPass)
+	cfg.Redis.User = os.Getenv(envRedisUser)
 
 	return cfg, nil
 }

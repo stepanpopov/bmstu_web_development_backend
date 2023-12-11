@@ -29,6 +29,7 @@ func main() {
 	serv := api.NewServer(
 		api.WithHost(conf.ServiceHost),
 		api.WithPort(conf.ServicePort),
+		api.WithJWTConfig(api.JWTConfig{Secret: conf.JWT.Secret, ExpiresIn: conf.JWT.ExpiresIn}),
 	)
 
 	// TODO: env and config

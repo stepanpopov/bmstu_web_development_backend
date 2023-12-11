@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 )
 
@@ -51,11 +52,17 @@ func (s Status) String() string {
 	return strings[s]
 }
 
+type JWTClaims struct {
+	jwt.StandardClaims
+	UserUUID    uuid.UUID `json:"user_uuid"`
+	IsModerator bool      `json:"scopes"`
+}
+
 type User struct {
-	UserID      uint   `gorm:"primary_key"`
-	Username    string `gorm:"type:varchar(30)"`
-	Password    string `gorm:"type:varchar(30)"`
-	IsModerator bool   `gorm:"type:bool"`
+	UserID      uuid.UUID `gorm:"primary_key"`
+	Username    string    `gorm:"type:varchar(30)"`
+	Password    string    `gorm:"type:varchar(30)"`
+	IsModerator bool      `gorm:"type:bool"`
 }
 
 type DataService struct {
@@ -73,8 +80,8 @@ type EncryptDecryptRequest struct {
 	CreationDate time.Time `gorm:"default:NOW()"`
 	FinishDate   *time.Time
 	FormDate     *time.Time
-	ModeratorID  *uint
-	CreatorID    *uint
+	ModeratorID  *uuid.UUID
+	CreatorID    *uuid.UUID
 }
 
 type EncryptDecryptRequestView struct {

@@ -16,17 +16,20 @@ type Repository interface {
 	UpdateDataService(*DataService) error
 	UpdateImageUUID(imageUUID uuid.UUID, dataID uint) error
 
-	CreateEncryptDecryptDraft(creatorID uint) (uint, error)
-	AddDataServiceToDraft(dataID uint, creatorID uint) (uint, error)
-	DeleteDataServiceFromDraft(dataID uint, creatorID uint) error
-	GetEncryptDecryptDraftID(creatorID uint) (*uint, error)
+	CreateEncryptDecryptDraft(creatorID uuid.UUID) (uint, error)
+	AddDataServiceToDraft(dataID uint, creatorID uuid.UUID) (uint, error)
+	DeleteDataServiceFromDraft(dataID uint, creatorID uuid.UUID) error
+	GetEncryptDecryptDraftID(creatorID uuid.UUID) (*uint, error)
 	GetEncryptDecryptRequests(status Status, startDate, endDate time.Time) ([]EncryptDecryptRequestView, error)
 	GetEncryptDecryptRequestWithDataByID(requestID uint) (EncryptDecryptRequestView, []DataService, error)
 	FormEncryptDecryptRequestByID(requestID uint) error
 	DeleteEncryptDecryptRequestByID(requestID uint) error
-	FinishEncryptDecryptRequestByID(requestID, moderatorID uint) error
-	RejectEncryptDecryptRequestByID(requestID, moderatorID uint) error
+	FinishEncryptDecryptRequestByID(requestID uint, moderatorID uuid.UUID) error
+	RejectEncryptDecryptRequestByID(requestID uint, moderatorID uuid.UUID) error
 	DeleteDataServiceFromEncryptDecryptRequest(dataID uint, reqID uint) error
+
+	CreateUser(username, passwordHash string, isModerator bool) (uuid.UUID, error)
+	CheckUser(username, passwordHash string) (uuid.UUID, bool, error)
 }
 
 type Avatar interface {

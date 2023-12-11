@@ -82,7 +82,7 @@ func getEncryptDecryptRequestsByID(r repo.Repository) func(c *gin.Context) {
 
 func createDraft(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		draftID, err := r.CreateEncryptDecryptDraft(creatorID)
+		draftID, err := r.CreateEncryptDecryptDraft(getUserUUIDFromCtx(c))
 
 		if err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())
@@ -143,13 +143,13 @@ func updateModeratorEncryptDecryptRequest(r repo.Repository) func(c *gin.Context
 		}
 
 		if actionReq.Action == "reject" {
-			if err := r.RejectEncryptDecryptRequestByID(uint(id), moderatorID); err != nil {
+			if err := r.RejectEncryptDecryptRequestByID(uint(id), getUserUUIDFromCtx(c)); err != nil {
 				respMessageAbort(c, http.StatusBadRequest, err.Error())
 				return
 			}
 			respMessage(c, http.StatusOK, "rejected")
 		} else if actionReq.Action == "finish" {
-			if err := r.FinishEncryptDecryptRequestByID(uint(id), moderatorID); err != nil {
+			if err := r.FinishEncryptDecryptRequestByID(uint(id), getUserUUIDFromCtx(c)); err != nil {
 				respMessageAbort(c, http.StatusBadRequest, err.Error())
 				return
 			}

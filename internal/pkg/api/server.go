@@ -3,20 +3,22 @@ package api
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"rip/internal/pkg/repo"
 
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	creatorID   = 1
-	moderatorID = 1
-)
+type JWTConfig struct {
+	ExpiresIn time.Duration
+	Secret    string
+}
 
 type Server struct {
-	host string
-	port int
+	host      string
+	port      int
+	jwtConfig JWTConfig
 }
 
 func WithHost(host string) func(*Server) {
@@ -28,6 +30,12 @@ func WithHost(host string) func(*Server) {
 func WithPort(port int) func(*Server) {
 	return func(s *Server) {
 		s.port = port
+	}
+}
+
+func WithJWTConfig(c JWTConfig) func(*Server) {
+	return func(s *Server) {
+		s.jwtConfig = c
 	}
 }
 
@@ -64,6 +72,10 @@ func (s *Server) StartServer(rep repo.Repository, avatar repo.Avatar) {
 	encDecRequest.PUT("/update_moderator/:id", updateModeratorEncryptDecryptRequest(rep))
 	encDecRequest.DELETE("/:req_id", deleteEncryptDecryptRequest(rep))
 	encDecRequest.DELETE("/:req_id/delete/:data_id", deleteDataFromEncryptDecryptRequest(rep))
+
+	auth := r.Group("/auth")
+	auth.POST("/login", login(rep, s.jwtConfig.Secret, s.jwtConfig.ExpiresIn))
+	auth.POST("register", register(rep))
 
 	// удаление услуги из заявки + мб тогда delete draft не нужен
 	// TODO: get draft???

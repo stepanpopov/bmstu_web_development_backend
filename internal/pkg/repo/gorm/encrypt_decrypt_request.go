@@ -6,13 +6,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // TODO: можно ли добавить услугу после формирования???
 // PS: ща нельзя
 
-func (r *Repository) CreateEncryptDecryptDraft(creatorID uint) (uint, error) {
+func (r *Repository) CreateEncryptDecryptDraft(creatorID uuid.UUID) (uint, error) {
 	request := repo.EncryptDecryptRequest{
 		CreatorID:    &creatorID,
 		Status:       repo.Draft,
@@ -25,7 +26,7 @@ func (r *Repository) CreateEncryptDecryptDraft(creatorID uint) (uint, error) {
 	return request.RequestID, nil
 }
 
-func (r *Repository) AddDataServiceToDraft(dataID uint, creatorID uint) (uint, error) {
+func (r *Repository) AddDataServiceToDraft(dataID uint, creatorID uuid.UUID) (uint, error) {
 	// получаем услугу
 	data, err := r.GetDataServiceById(dataID)
 	if err != nil {
@@ -71,7 +72,7 @@ func (r *Repository) AddDataServiceToDraft(dataID uint, creatorID uint) (uint, e
 	return draftReq.RequestID, nil
 }
 
-func (r *Repository) DeleteDataServiceFromDraft(dataID uint, creatorID uint) error {
+func (r *Repository) DeleteDataServiceFromDraft(dataID uint, creatorID uuid.UUID) error {
 	// получаем услугу
 	data, err := r.GetDataServiceById(dataID)
 	if err != nil {
@@ -139,7 +140,7 @@ func (r *Repository) DeleteDataServiceFromEncryptDecryptRequest(dataID uint, req
 }
 
 // returns nil if there is no draft
-func (r *Repository) GetEncryptDecryptDraftID(creatorID uint) (*uint, error) {
+func (r *Repository) GetEncryptDecryptDraftID(creatorID uuid.UUID) (*uint, error) {
 	var draftReq repo.EncryptDecryptRequest
 	res := r.db.Where("creator_id = ?", creatorID).Where("status = ?", repo.Draft).Take(&draftReq)
 
@@ -268,15 +269,15 @@ func (r *Repository) DeleteEncryptDecryptRequestByID(requestID uint) error {
 }
 
 // moderator
-func (r *Repository) FinishEncryptDecryptRequestByID(requestID, moderatorID uint) error {
+func (r *Repository) FinishEncryptDecryptRequestByID(requestID uint, moderatorID uuid.UUID) error {
 	return r.finishRejectHelper(repo.Finished, requestID, moderatorID)
 }
 
-func (r *Repository) RejectEncryptDecryptRequestByID(requestID, moderatorID uint) error {
+func (r *Repository) RejectEncryptDecryptRequestByID(requestID uint, moderatorID uuid.UUID) error {
 	return r.finishRejectHelper(repo.Rejected, requestID, moderatorID)
 }
 
-func (r *Repository) finishRejectHelper(status repo.Status, requestID, moderatorID uint) error {
+func (r *Repository) finishRejectHelper(status repo.Status, requestID uint, moderatorID uuid.UUID) error {
 	var req repo.EncryptDecryptRequest
 	res := r.db.
 		Where("request_id = ?", requestID).
