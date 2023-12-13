@@ -15,7 +15,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func WithAuthCheck(secret string, redisCl myRedis.RedisClient) func(gCtx *gin.Context) {
+func WithAuthCheck(secret string, redisCl *myRedis.RedisClient) func(gCtx *gin.Context) {
 	return func(gCtx *gin.Context) {
 		jwtStr := gCtx.GetHeader("Authorization")
 		if !strings.HasPrefix(jwtStr, consts.JwtPrefix) {

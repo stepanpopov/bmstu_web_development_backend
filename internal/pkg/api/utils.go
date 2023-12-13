@@ -61,6 +61,9 @@ func generateHashString(s string) string {
 
 func getUserUUIDFromCtx(c *gin.Context) uuid.UUID {
 	userID, _ := c.Get(consts.UserUUIDCtxParam)
+	if userID == nil {
+		return uuid.Nil
+	}
 	userIDCasted := userID.(uuid.UUID)
 	return userIDCasted
 }

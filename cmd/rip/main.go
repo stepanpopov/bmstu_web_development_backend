@@ -6,6 +6,7 @@ import (
 	"rip/internal/config"
 	"rip/internal/dsn"
 	"rip/internal/pkg/api"
+	"rip/internal/pkg/redis"
 	repo "rip/internal/pkg/repo/gorm"
 	"time"
 
@@ -14,7 +15,9 @@ import (
 )
 
 func main() {
-	conf, err := config.NewConfig(context.Background())
+	ctx := context.Background()
+
+	conf, err := config.NewConfig(ctx)
 	if err != nil {
 		log.Fatal("Config error:", err)
 	}
@@ -61,5 +64,10 @@ loop:
 
 	avatar := s3.NewS3MinioAvatarSaver("avatars", minioCl)
 
-	serv.StartServer(repo, avatar)
+	redis, err := redis.New(ctx, conf.Redis)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	serv.StartServer(repo, avatar, redis)
 }

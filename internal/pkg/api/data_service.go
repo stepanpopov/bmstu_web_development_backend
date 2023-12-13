@@ -8,6 +8,7 @@ import (
 	"rip/internal/pkg/repo"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func filterDataService(r repo.Repository) func(c *gin.Context) {
@@ -20,10 +21,13 @@ func filterDataService(r repo.Repository) func(c *gin.Context) {
 			return
 		}
 
-		draftID, err := r.GetEncryptDecryptDraftID(getUserUUIDFromCtx(c))
-		if err != nil {
-			respMessageAbort(c, 500, err.Error())
-			return
+		var draftID *uint
+		if userUUID := getUserUUIDFromCtx(c); userUUID != uuid.Nil {
+			draftID, err = r.GetEncryptDecryptDraftID(getUserUUIDFromCtx(c))
+			if err != nil {
+				respMessageAbort(c, 500, err.Error())
+				return
+			}
 		}
 
 		c.JSON(http.StatusOK, gin.H{
