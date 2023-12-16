@@ -63,10 +63,10 @@ func (s *Server) StartServer(rep repo.Repository, avatar repo.Avatar, redis *red
 	dataService.GET("/", filterDataService(rep))
 	dataService.GET("/:id", getDataServiceByID(rep))
 
+	dataService. /*.Use(moderatorMiddleware...)*/ POST("/:id/image", putImage(rep, avatar))
 	dataService.Use(moderatorMiddleware...).POST("/", createDataService(rep))
 	dataService.Use(moderatorMiddleware...).DELETE("/:id", deleteDataService(rep, avatar))
 	dataService.Use(moderatorMiddleware...).PUT("/", updateDataService(rep))
-	dataService.Use(moderatorMiddleware...).POST("/:id/image", putImage(rep, avatar))
 
 	dataService.Use(userMiddleware).POST("/draft/:id", addToDraft(rep))
 	dataService.Use(userMiddleware).DELETE("/draft/:id", deleteFromDraft(rep)) //

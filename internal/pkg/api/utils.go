@@ -23,7 +23,7 @@ func respMessageAbort(c *gin.Context, code uint, message string) {
 	c.AbortWithStatusJSON(int(code), gin.H{"message": message})
 }
 
-const s3Url = "http://localhost:9001/images/"
+const s3Url = "http://localhost:9000/avatars/"
 
 func toView(d repo.DataService) DataServiceView {
 	return DataServiceView{

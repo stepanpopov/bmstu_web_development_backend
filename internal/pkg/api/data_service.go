@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -126,6 +127,7 @@ func updateDataService(r repo.Repository) func(c *gin.Context) {
 
 func putImage(r repo.Repository, a repo.Avatar) func(c *gin.Context) {
 	return func(c *gin.Context) {
+		log.Println("In put image")
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
 		form, err := c.MultipartForm()
