@@ -7,7 +7,13 @@ import (
 )
 
 func (r *Repository) CreateUser(username, passwordHash string, isModerator bool) (uuid.UUID, error) {
+	randUUID, err := uuid.NewRandom()
+	if err != nil {
+		return randUUID, err
+	}
+
 	user := &repo.User{
+		UserID:      randUUID,
 		Username:    username,
 		Password:    passwordHash,
 		IsModerator: isModerator,
@@ -26,7 +32,7 @@ func (r *Repository) CheckUser(username, passwordHash string) (uuid.UUID, bool, 
 		Password: passwordHash,
 	}
 
-	if err := r.db.First(user).Error; err != nil {
+	if err := r.db.Where(user).Take(user).Error; err != nil {
 		return uuid.Nil, false, err
 	}
 

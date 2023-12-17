@@ -18,9 +18,13 @@ type JWTConfig struct {
 }
 
 type Server struct {
-	host      string
-	port      int
+	host string
+	port int
+
 	jwtConfig JWTConfig
+
+	calculateSecret   string
+	calculateCallback string
 }
 
 func WithHost(host string) func(*Server) {
@@ -38,6 +42,13 @@ func WithPort(port int) func(*Server) {
 func WithJWTConfig(c JWTConfig) func(*Server) {
 	return func(s *Server) {
 		s.jwtConfig = c
+	}
+}
+
+func WithCalculate(callback, secret string) func(*Server) {
+	return func(s *Server) {
+		s.calculateSecret = secret
+		s.calculateCallback = callback
 	}
 }
 
@@ -75,14 +86,16 @@ func (s *Server) StartServer(rep repo.Repository, avatar repo.Avatar, redis *red
 	encDecRequest.GET("/filter", getEncryptDecryptRequests(rep))
 	encDecRequest.GET("/:id", getEncryptDecryptRequestsByID(rep))
 
-	encDecRequest.Use(userMiddleware).PUT("/form/:id", formEncryptDecryptRequest(rep))
+	encDecRequest.PUT("/update_calculated", calculated(rep, s.calculateSecret))
+
+	encDecRequest.Use(userMiddleware).PUT("/form/:id", formEncryptDecryptRequest(rep, s.makeCalculationRequest))
 	encDecRequest.Use(userMiddleware).DELETE("/:req_id", deleteEncryptDecryptRequest(rep))
 	encDecRequest.Use(userMiddleware).DELETE("/:req_id/delete/:data_id", deleteDataFromEncryptDecryptRequest(rep))
 	encDecRequest.Use(moderatorMiddleware...).PUT("/update_moderator/:id", updateModeratorEncryptDecryptRequest(rep))
 
 	auth := api.Group("/auth")
 	auth.POST("/login", login(rep, s.jwtConfig.Secret, s.jwtConfig.ExpiresIn))
-	auth.POST("register", register(rep))
+	auth.POST("/register", register(rep))
 
 	// удаление услуги из заявки + мб тогда delete draft не нужен
 	// TODO: get draft???

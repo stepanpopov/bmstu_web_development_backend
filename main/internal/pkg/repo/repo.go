@@ -27,6 +27,7 @@ type Repository interface {
 	FinishEncryptDecryptRequestByID(requestID uint, moderatorID uuid.UUID) error
 	RejectEncryptDecryptRequestByID(requestID uint, moderatorID uuid.UUID) error
 	DeleteDataServiceFromEncryptDecryptRequest(dataID uint, reqID uint) error
+	UpdateCalculated(reqID uint, calculated []Calculated) error
 
 	CreateUser(username, passwordHash string, isModerator bool) (uuid.UUID, error)
 	CheckUser(username, passwordHash string) (uuid.UUID, bool, error)

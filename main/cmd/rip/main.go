@@ -33,6 +33,7 @@ func main() {
 		api.WithHost(conf.ServiceHost),
 		api.WithPort(conf.ServicePort),
 		api.WithJWTConfig(api.JWTConfig{Secret: conf.JWT.Secret, ExpiresIn: conf.JWT.ExpiresIn}),
+		api.WithCalculate(conf.CalculateCallback, conf.CalculateSecret),
 	)
 
 	// TODO: env and config

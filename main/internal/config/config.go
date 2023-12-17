@@ -12,11 +12,15 @@ import (
 	"github.com/spf13/viper"
 )
 
+const secret = "rust manipulates memory much more efficiently"
+
 type Config struct {
-	ServiceHost string
-	ServicePort int
-	JWT         JWTConfig
-	Redis       RedisConfig
+	ServiceHost       string
+	ServicePort       int
+	CalculateSecret   string
+	CalculateCallback string
+	JWT               JWTConfig
+	Redis             RedisConfig
 }
 
 type JWTConfig struct {
@@ -66,7 +70,7 @@ func NewConfig(ctx context.Context) (*Config, error) {
 		return nil, err
 	}
 
-	cfg.JWT.Secret = "rust manipulates memory much more efficiently"
+	cfg.JWT.Secret = secret
 	cfg.JWT.ExpiresIn = time.Duration(time.Hour * 24 * 365)
 
 	cfg.Redis.Host = os.Getenv(envRedisHost)
@@ -78,6 +82,9 @@ func NewConfig(ctx context.Context) (*Config, error) {
 
 	cfg.Redis.Password = os.Getenv(envRedisPass)
 	cfg.Redis.User = os.Getenv(envRedisUser)
+
+	cfg.CalculateSecret = "rust"
+	cfg.CalculateCallback = "http://localhost:8765/calculate/"
 
 	return cfg, nil
 }

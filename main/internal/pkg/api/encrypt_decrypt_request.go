@@ -1,12 +1,17 @@
 package api
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"net/http"
 	"rip/internal/pkg/repo"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/sethvargo/go-retry"
 )
 
 func getEncryptDecryptRequests(r repo.Repository) func(c *gin.Context) {
@@ -105,7 +110,10 @@ func deleteEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
 	}
 }
 
-func formEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
+func formEncryptDecryptRequest(
+	r repo.Repository,
+	makeCalculationRequest func(uint, []repo.DataService) (int, error),
+) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
@@ -119,6 +127,21 @@ func formEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
 		if err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())
 			return
+		}
+
+		if err = retry.Do(context.Background(), retry.WithMaxRetries(3, retry.NewExponential(1*time.Second)), func(ctx context.Context) error {
+			status, err := makeCalculationRequest(req.RequestID, dataServices)
+			if err != nil {
+				if status/100 == 5 {
+					return retry.RetryableError(err)
+				}
+
+				return err
+			}
+
+			return nil
+		}); err != nil {
+			log.Printf("Error during calling async service: %v", err)
 		}
 
 		c.JSON(http.StatusOK, gin.H{
@@ -169,5 +192,36 @@ func deleteDataFromEncryptDecryptRequest(r repo.Repository) func(c *gin.Context)
 		}
 
 		respMessage(c, http.StatusOK, "deleted")
+	}
+}
+
+type CalculatedReq struct {
+	CalculatedList []repo.Calculated `json:"calculated"`
+	Token          string            `json:"token"`
+	ReqID          int               `json:"req_id"`
+}
+
+func calculated(r repo.Repository, secret string) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		fmt.Println("in calc")
+
+		var req CalculatedReq
+		if err := c.BindJSON(&req); err != nil {
+			respMessage(c, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		fmt.Println(req.Token, secret)
+		if req.Token != secret {
+			respMessageAbort(c, http.StatusForbidden, "invalid token")
+			return
+		}
+
+		if err := r.UpdateCalculated(uint(req.ReqID), req.CalculatedList); err != nil {
+			respMessageAbort(c, http.StatusInternalServerError, "failed to update")
+			return
+		}
+
+		respMessage(c, http.StatusOK, "updated")
 	}
 }

@@ -59,9 +59,9 @@ type JWTClaims struct {
 }
 
 type User struct {
-	UserID      uuid.UUID `gorm:"primary_key"`
-	Username    string    `gorm:"type:varchar(30)"`
-	Password    string    `gorm:"type:varchar(30)"`
+	UserID      uuid.UUID `gorm:"type:uuid;primary_key"`
+	Username    string    `gorm:"type:varchar(100);unique"`
+	Password    string    `gorm:"type:varchar(100)"`
 	IsModerator bool      `gorm:"type:bool"`
 }
 
@@ -71,7 +71,7 @@ type DataService struct {
 	Encode    bool      `gorm:"type:bool" json:"encode"`
 	Blob      string    `gorm:"type:text" json:"blob"`
 	Active    bool      `gorm:"type:bool" json:"active"`
-	ImageUUID uuid.UUID `json:"image_uuid,omitempty"`
+	ImageUUID uuid.UUID `json:"image_uuid,omitempty" gorm:"type:uuid"`
 }
 
 type EncryptDecryptRequest struct {
@@ -80,8 +80,8 @@ type EncryptDecryptRequest struct {
 	CreationDate time.Time `gorm:"default:NOW()"`
 	FinishDate   *time.Time
 	FormDate     *time.Time
-	ModeratorID  *uuid.UUID
-	CreatorID    *uuid.UUID
+	ModeratorID  *uuid.UUID `gorm:"type:uuid"`
+	CreatorID    *uuid.UUID `gorm:"type:uuid"`
 }
 
 type EncryptDecryptRequestView struct {
@@ -94,10 +94,17 @@ type EncryptDecryptRequestView struct {
 	Creator      *string `gorm:"column:username"`
 }
 
+type Calculated struct {
+	ID      uint
+	Result  string
+	Success bool
+}
+
 type EncryptDecryptToData struct {
 	DataID    uint `gorm:"primarykey"`
 	RequestID uint `gorm:"primarykey"`
 	Result    string
+	Success   bool
 }
 
 func All() []any {

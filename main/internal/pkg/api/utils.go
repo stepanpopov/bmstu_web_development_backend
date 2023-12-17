@@ -1,8 +1,12 @@
 package api
 
 import (
+	"bytes"
 	"crypto/sha1"
 	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"net/http"
 	"rip/internal/pkg/api/consts"
 	"rip/internal/pkg/repo"
 	"strings"
@@ -75,4 +79,51 @@ func getJWTStr(gCtx *gin.Context) string {
 	}
 	// отрезаем префикс
 	return jwtStr[len(consts.JwtPrefix):]
+}
+
+type Calculate struct {
+	ID   uint   `json:"id"`
+	Data string `json:"data"`
+}
+
+type CalculateRequest struct {
+	Token string      `json:"token"`
+	ReqID uint        `json:"req_id"`
+	Calc  []Calculate `json:"calc"`
+}
+
+func (s *Server) makeCalculationRequest(reqID uint, dataServices []repo.DataService) (int, error) {
+	// Define the data you want to send
+	calc := make([]Calculate, 0, len(dataServices))
+	for _, ds := range dataServices {
+		calc = append(calc, Calculate{ID: ds.DataID, Data: ds.Blob})
+	}
+
+	calcReq := CalculateRequest{
+		Calc:  calc,
+		Token: s.calculateSecret,
+		ReqID: reqID,
+	}
+
+	// Marshal the data into JSON
+	json_data, err := json.Marshal(&calcReq)
+	if err != nil {
+		return 0, err
+	}
+
+	// Create a new HTTP request
+	resp, err := http.Post(s.calculateCallback, "application/json", bytes.NewBuffer(json_data))
+	if err != nil {
+		return 0, err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		respBuf := new(bytes.Buffer)
+		respBuf.ReadFrom(resp.Body)
+		return resp.StatusCode, errors.New(respBuf.String())
+	}
+
+	return 0, nil
 }
