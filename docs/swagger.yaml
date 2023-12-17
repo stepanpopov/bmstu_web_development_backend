@@ -1,0 +1,608 @@
+basePath: /api/
+definitions:
+  internal_pkg_api.DataServiceView:
+    properties:
+      active:
+        type: boolean
+      blob:
+        type: string
+      data_id:
+        type: integer
+      data_name:
+        type: string
+      encode:
+        type: boolean
+      image_url:
+        type: string
+    type: object
+  internal_pkg_api.loginReq:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  internal_pkg_api.loginResp:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        $ref: '#/definitions/time.Duration'
+      token_type:
+        type: string
+    type: object
+  internal_pkg_api.registerReq:
+    properties:
+      is_moderator:
+        type: boolean
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  internal_pkg_api.registerResp:
+    properties:
+      user_uuid:
+        type: string
+    type: object
+  rip_internal_pkg_repo.DataService:
+    properties:
+      active:
+        type: boolean
+      blob:
+        type: string
+      data_id:
+        type: integer
+      data_name:
+        type: string
+      encode:
+        type: boolean
+      image_uuid:
+        type: string
+    type: object
+  rip_internal_pkg_repo.EncryptDecryptRequestView:
+    properties:
+      creationDate:
+        type: string
+      creator:
+        type: string
+      finishDate:
+        type: string
+      formDate:
+        type: string
+      moderator:
+        type: string
+      requestID:
+        type: integer
+      status:
+        $ref: '#/definitions/rip_internal_pkg_repo.Status'
+    type: object
+  rip_internal_pkg_repo.Status:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    type: integer
+    x-enum-varnames:
+    - Draft
+    - Deleted
+    - Formed
+    - Finished
+    - Rejected
+    - UnknownStatus
+  time.Duration:
+    enum:
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    type: integer
+    x-enum-varnames:
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
+host: localhost:80
+info:
+  contact:
+    email: jomolun@yandex.com
+    name: Rip API Support
+  description: Rip
+  title: Rip
+  version: 1.0.1
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login account
+      parameters:
+      - description: username and password
+        in: body
+        name: userInput
+        required: true
+        schema:
+          $ref: '#/definitions/internal_pkg_api.loginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User created
+          schema:
+            $ref: '#/definitions/internal_pkg_api.loginResp'
+        "400":
+          description: Incorrect input
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Login
+      tags:
+      - Auth
+  /api/auth/logout:
+    get:
+      consumes:
+      - application/json
+      description: Logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout success
+          schema:
+            type: string
+        "400":
+          description: Incorrect input
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Logout
+      tags:
+      - Auth
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create account
+      parameters:
+      - description: User info
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/internal_pkg_api.registerReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User created
+          schema:
+            $ref: '#/definitions/internal_pkg_api.registerResp'
+        "400":
+          description: Incorrect input
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Register
+      tags:
+      - Auth
+  /api/dataService/:
+    get:
+      consumes:
+      - application/json
+      description: Get data services filtered by name
+      parameters:
+      - description: Name
+        in: query
+        name: dataname
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Data Service Filtered
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Filter data service
+      tags:
+      - DataService
+    post:
+      consumes:
+      - application/json
+      description: Create data services
+      parameters:
+      - description: Data Service
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/rip_internal_pkg_repo.DataService'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Create Data Service
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Create data service
+      tags:
+      - DataService
+    put:
+      consumes:
+      - application/json
+      description: Update data services
+      parameters:
+      - description: Data Service
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/rip_internal_pkg_repo.DataService'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Create Data Service
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Update data service
+      tags:
+      - DataService
+  /api/dataService/{dataServiceID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete data service
+      parameters:
+      - description: Data Service ID
+        in: path
+        name: dataServiceID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Delete Data Service
+          schema:
+            type: string
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Delete data service
+      tags:
+      - DataService
+    get:
+      consumes:
+      - application/json
+      description: Get data service by id
+      parameters:
+      - description: Data Service ID
+        in: path
+        name: dataServiceID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Got Data Service
+          schema:
+            $ref: '#/definitions/internal_pkg_api.DataServiceView'
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Get data service by id
+      tags:
+      - DataService
+  /api/dataService/{dataServiceID}/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Put image for data service
+      parameters:
+      - description: DataService avatar file
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Create Data Service
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Put image for data service
+      tags:
+      - DataService
+  /api/dataService/draft/{id}:
+    delete:
+      description: Delete data service from draft
+      parameters:
+      - description: Data Service ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Data Service added to draft
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Delete data service from draft
+      tags:
+      - DataService
+    post:
+      description: Add data service to draft
+      parameters:
+      - description: Data Service ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Data Service added to draft
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Add data service to draft
+      tags:
+      - DataService
+  /api/encryptDecryptRequest/{req_id}:
+    delete:
+      description: Delete EncryptDecryptRequest by id
+      parameters:
+      - description: EncryptDecryptRequest ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Delete
+          schema:
+            type: string
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Delete EncryptDecryptRequest by id
+      tags:
+      - EncryptDecryptRequest
+    get:
+      description: Get EncryptDecryptRequest by id
+      parameters:
+      - description: EncryptDecryptRequest ID
+        in: path
+        name: req_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Draft EncryptDecryptRequest and Data Services
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Get EncryptDecryptRequest by id
+      tags:
+      - EncryptDecryptRequest
+  /api/encryptDecryptRequest/{req_id}/delete/{data_id}:
+    delete:
+      description: Delete DataService from EncryptDecryptRequest
+      parameters:
+      - description: EncryptDecryptRequest ID
+        in: path
+        name: req_id
+        required: true
+        type: integer
+      - description: DataService ID
+        in: path
+        name: data_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Delete
+          schema:
+            type: string
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Delete DataService from EncryptDecryptRequest
+      tags:
+      - EncryptDecryptRequest
+  /api/encryptDecryptRequest/filter:
+    get:
+      description: Get requests filtered by status, start and end date
+      parameters:
+      - description: Status
+        in: query
+        name: status
+        type: string
+      - description: Start Date
+        in: query
+        name: start_date
+        type: string
+      - description: End Date
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Data Service Filtered
+          schema:
+            items:
+              $ref: '#/definitions/rip_internal_pkg_repo.EncryptDecryptRequestView'
+            type: array
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Filter EncryptDecryptRequests
+      tags:
+      - EncryptDecryptRequest
+  /api/encryptDecryptRequest/form/{id}:
+    put:
+      description: Form EncryptDecryptRequest by moderator
+      parameters:
+      - description: EncryptDecryptRequest ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: EncryptDecryptRequest and DataServices
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Form EncryptDecryptRequest by moderator
+      tags:
+      - EncryptDecryptRequest
+  /api/encryptDecryptRequest/update_moderator/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update EncryptDecryptRequest by moderator
+      parameters:
+      - description: EncryptDecryptRequest ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 'Action: finish or reject'
+        in: body
+        name: action
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Finished/Rejected
+          schema:
+            type: string
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: Server error
+          schema: {}
+      summary: Update EncryptDecryptRequest by moderator
+      tags:
+      - EncryptDecryptRequest
+swagger: "2.0"

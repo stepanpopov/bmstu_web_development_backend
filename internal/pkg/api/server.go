@@ -5,11 +5,14 @@ import (
 	"log"
 	"time"
 
+	_ "rip/docs"
 	"rip/internal/pkg/api/middleware"
 	"rip/internal/pkg/redis"
 	"rip/internal/pkg/repo"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"     // swagger embed files
+	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
 )
 
 type JWTConfig struct {
@@ -82,7 +85,10 @@ func (s *Server) StartServer(rep repo.Repository, avatar repo.Avatar, redis *red
 
 	auth := api.Group("/auth")
 	auth.POST("/login", login(rep, s.jwtConfig.Secret, s.jwtConfig.ExpiresIn))
-	auth.POST("register", register(rep))
+	auth.POST("/register", register(rep))
+	auth.GET("/logout", logout(rep, s.jwtConfig.ExpiresIn, redis))
+
+	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// удаление услуги из заявки + мб тогда delete draft не нужен
 	// TODO: get draft???

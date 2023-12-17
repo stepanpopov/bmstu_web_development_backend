@@ -14,6 +14,20 @@ import (
 	"rip/internal/pkg/s3/minio"
 )
 
+// @title		Rip
+// @version		1.0.1
+// @description	Rip
+
+// @contact.name   Rip API Support
+// @contact.email  jomolun@yandex.com
+
+// @host		localhost:80
+// @BasePath	/api/
+
+// @securityDefinitions	AuthKey
+// @in					header
+// @name				Authorization
+
 func main() {
 	ctx := context.Background()
 
