@@ -899,7 +899,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0.1",
 	Host:             "localhost:80",
-	BasePath:         "/api/",
+	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Rip",
 	Description:      "Rip",

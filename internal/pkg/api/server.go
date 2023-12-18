@@ -66,17 +66,17 @@ func (s *Server) StartServer(rep repo.Repository, avatar repo.Avatar, redis *red
 	dataService.GET("/", filterDataService(rep))
 	dataService.GET("/:id", getDataServiceByID(rep))
 
-	dataService. /*.Use(moderatorMiddleware...)*/ POST("/:id/image", putImage(rep, avatar))
+	dataService.Use(userMiddleware).POST("/draft/:id", addToDraft(rep))
+	dataService.Use(userMiddleware).DELETE("/draft/:id", deleteFromDraft(rep)) //
+
+	dataService.Use(moderatorMiddleware...).POST("/:id/image", putImage(rep, avatar))
 	dataService.Use(moderatorMiddleware...).POST("/", createDataService(rep))
 	dataService.Use(moderatorMiddleware...).DELETE("/:id", deleteDataService(rep, avatar))
 	dataService.Use(moderatorMiddleware...).PUT("/", updateDataService(rep))
 
-	dataService.Use(userMiddleware).POST("/draft/:id", addToDraft(rep))
-	dataService.Use(userMiddleware).DELETE("/draft/:id", deleteFromDraft(rep)) //
-
 	encDecRequest := api.Group("/encryptDecryptRequest")
-	encDecRequest.GET("/filter", getEncryptDecryptRequests(rep))
-	encDecRequest.GET("/:id", getEncryptDecryptRequestsByID(rep))
+	encDecRequest.Use(userMiddleware).GET("/filter", getEncryptDecryptRequests(rep))
+	encDecRequest.Use(userMiddleware).GET("/:id", getEncryptDecryptRequestsByID(rep))
 
 	encDecRequest.Use(userMiddleware).PUT("/form/:id", formEncryptDecryptRequest(rep))
 	encDecRequest.Use(userMiddleware).DELETE("/:req_id", deleteEncryptDecryptRequest(rep))

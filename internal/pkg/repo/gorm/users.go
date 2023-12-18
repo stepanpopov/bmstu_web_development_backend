@@ -7,7 +7,13 @@ import (
 )
 
 func (r *Repository) CreateUser(username, passwordHash string, isModerator bool) (uuid.UUID, error) {
+	randomUUID, err := uuid.NewRandom()
+	if err != nil {
+		return uuid.Nil, err
+	}
+
 	user := &repo.User{
+		UserID:      randomUUID,
 		Username:    username,
 		Password:    passwordHash,
 		IsModerator: isModerator,

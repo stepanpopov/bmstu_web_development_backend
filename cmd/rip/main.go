@@ -22,7 +22,7 @@ import (
 // @contact.email  jomolun@yandex.com
 
 // @host		localhost:80
-// @BasePath	/api/
+// @BasePath	/
 
 // @securityDefinitions	AuthKey
 // @in					header

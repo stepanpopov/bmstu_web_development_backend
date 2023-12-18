@@ -1,4 +1,4 @@
-basePath: /api/
+basePath: /
 definitions:
   internal_pkg_api.DataServiceView:
     properties:
