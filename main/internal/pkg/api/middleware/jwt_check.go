@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -45,6 +46,7 @@ func WithAuthCheck(secret string, redisCl *myRedis.RedisClient) func(gCtx *gin.C
 		}
 
 		myClaims := parsedToken.Claims.(*repo.JWTClaims)
+		fmt.Println(myClaims.IsModerator, myClaims.UserUUID)
 		gCtx.Set(consts.ModeratorCtxParam, myClaims.IsModerator)
 		gCtx.Set(consts.UserUUIDCtxParam, myClaims.UserUUID)
 	}

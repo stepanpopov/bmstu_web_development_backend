@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"rip/internal/pkg/api/consts"
 	"rip/internal/pkg/repo"
 	"strconv"
 	"time"
@@ -14,6 +15,17 @@ import (
 	"github.com/sethvargo/go-retry"
 )
 
+// @Summary      Filter EncryptDecryptRequests
+// @Tags         EncryptDecryptRequest
+// @Description  Get requests filtered by status, start and end date
+// @Produce      json
+// @Param		 status query string false 					"Status"
+// @Param		 start_date query string false 				"Start Date"
+// @Param		 end_date query string false 				"End Date"
+// @Success      200    {object}  []repo.EncryptDecryptRequestView	   "Data Service Filtered"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/encryptDecryptRequest/filter [get]
 func getEncryptDecryptRequests(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		const layoutDate = "2006-01-02"
@@ -57,7 +69,8 @@ func getEncryptDecryptRequests(r repo.Repository) func(c *gin.Context) {
 			}
 		}
 
-		requests, err := r.GetEncryptDecryptRequests(status, startDate, endDate)
+		isModerator := c.GetBool(consts.ModeratorCtxParam)
+		requests, err := r.GetEncryptDecryptRequests(status, startDate, endDate, getUserUUIDFromCtx(c), isModerator)
 
 		if err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())
@@ -68,11 +81,20 @@ func getEncryptDecryptRequests(r repo.Repository) func(c *gin.Context) {
 	}
 }
 
+// @Summary      Get EncryptDecryptRequest by id
+// @Tags         EncryptDecryptRequest
+// @Description  Get EncryptDecryptRequest by id
+// @Produce      json
+// @Param		 req_id path int true 				"EncryptDecryptRequest ID"
+// @Success      200    {object}  map[string]any	   "Draft EncryptDecryptRequest and Data Services"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/encryptDecryptRequest/{req_id} [get]
 func getEncryptDecryptRequestsByID(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-		req, dataServices, err := r.GetEncryptDecryptRequestWithDataByID(uint(id))
+		req, dataServices, err := r.GetEncryptDecryptRequestWithDataByID(uint(id), getUserUUIDFromCtx(c), c.GetBool(consts.ModeratorCtxParam))
 		if err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())
 			return
@@ -97,6 +119,15 @@ func createDraft(r repo.Repository) func(c *gin.Context) {
 	}
 }
 
+// @Summary      Delete EncryptDecryptRequest by id
+// @Tags         EncryptDecryptRequest
+// @Description  Delete EncryptDecryptRequest by id
+// @Produce      json
+// @Param		 id path int true 				"EncryptDecryptRequest ID"
+// @Success      200    {object}  string	   "Delete"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/encryptDecryptRequest/{req_id} [delete]
 func deleteEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("req_id"), 10, 64)
@@ -110,6 +141,16 @@ func deleteEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
 	}
 }
 
+// @Summary      Form EncryptDecryptRequest by moderator
+// @Tags         EncryptDecryptRequest
+// @Description  Form EncryptDecryptRequest by moderator
+// @Produce      json
+// @Param		 id path int true 						"EncryptDecryptRequest ID"
+// @Success      200    {object}  map[string]any	   	"EncryptDecryptRequest and DataServices"
+// @Failure      400    {object}  error  			   "Bad Request"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/encryptDecryptRequest/form/{id} [put]
 func formEncryptDecryptRequest(
 	r repo.Repository,
 	makeCalculationRequest func(uint, []repo.DataService) (int, error),
@@ -123,7 +164,7 @@ func formEncryptDecryptRequest(
 			return
 		}
 
-		req, dataServices, err := r.GetEncryptDecryptRequestWithDataByID(uint(id))
+		req, dataServices, err := r.GetEncryptDecryptRequestWithDataByID(uint(id), getUserUUIDFromCtx(c), false)
 		if err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())
 			return
@@ -151,6 +192,17 @@ func formEncryptDecryptRequest(
 	}
 }
 
+// @Summary      Update EncryptDecryptRequest by moderator
+// @Tags         EncryptDecryptRequest
+// @Description  Update EncryptDecryptRequest by moderator
+// @Produce      json
+// @Accept		 json
+// @Param		 id path int true 				"EncryptDecryptRequest ID"
+// @Param		 action body int true 				"Action: finish or reject"
+// @Success      200    {object}  string	   "Finished/Rejected"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/encryptDecryptRequest/update_moderator/{id} [put]
 func updateModeratorEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -181,6 +233,16 @@ func updateModeratorEncryptDecryptRequest(r repo.Repository) func(c *gin.Context
 	}
 }
 
+// @Summary      Delete DataService from EncryptDecryptRequest
+// @Tags         EncryptDecryptRequest
+// @Description  Delete DataService from EncryptDecryptRequest
+// @Produce      json
+// @Param		 req_id path int true 				"EncryptDecryptRequest ID"
+// @Param		 data_id path int true 				"DataService ID"
+// @Success      200    {object}  string	   "Delete"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/encryptDecryptRequest/{req_id}/delete/{data_id} [delete]
 func deleteDataFromEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		reqID, _ := strconv.ParseUint(c.Param("req_id"), 10, 64)

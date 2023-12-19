@@ -12,6 +12,16 @@ import (
 	"github.com/google/uuid"
 )
 
+// @Summary      Filter data service
+// @Tags         DataService
+// @Description  Get data services filtered by name
+// @Accept       json
+// @Produce      json
+// @Param		 dataname query string true 				"Name"
+// @Success      200    {object}  map[string]any 		   "Data Service Filtered"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/dataService/ [get]
 func filterDataService(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		queryText, _ := c.GetQuery("dataname")
@@ -38,6 +48,16 @@ func filterDataService(r repo.Repository) func(c *gin.Context) {
 	}
 }
 
+// @Summary      Get data service by id
+// @Tags         DataService
+// @Description  Get data service by id
+// @Accept       json
+// @Produce      json
+// @Param		 dataServiceID path int true 				"Data Service ID"
+// @Success      200    {object}  DataServiceView 		   "Got Data Service"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/dataService/{dataServiceID} [get]
 func getDataServiceByID(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -52,6 +72,16 @@ func getDataServiceByID(r repo.Repository) func(c *gin.Context) {
 	}
 }
 
+// @Summary      Delete data service
+// @Tags         DataService
+// @Description  Delete data service
+// @Accept       json
+// @Produce      json
+// @Param		 dataServiceID path int true 				"Data Service ID"
+// @Success      200    {object}  string 		   "Delete Data Service"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/dataService/{dataServiceID} [delete]
 func deleteDataService(r repo.Repository, a repo.Avatar) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id")[:], 10, 64)
@@ -70,6 +100,17 @@ func deleteDataService(r repo.Repository, a repo.Avatar) func(c *gin.Context) {
 	}
 }
 
+// @Summary      Create data service
+// @Tags         DataService
+// @Description  Create data services
+// @Accept       json
+// @Produce      json
+// @Param		 data	body		repo.DataService    true "Data Service"
+// @Success      200    {object}  map[string]int 		   "Create Data Service"
+// @Failure      400    {object}  error  			   "Bad request"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/dataService/ [post]
 func createDataService(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		data := repo.DataService{}
@@ -100,6 +141,17 @@ func createDataService(r repo.Repository) func(c *gin.Context) {
 	}
 }
 
+// @Summary      Update data service
+// @Tags         DataService
+// @Description  Update data services
+// @Accept       json
+// @Produce      json
+// @Param		 data	body		repo.DataService    true "Data Service"
+// @Success      200    {object}  map[string]int 		   "Create Data Service"
+// @Failure      400    {object}  error  			   "Bad request"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/dataService/ [put]
 func updateDataService(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		data := repo.DataService{}
@@ -125,6 +177,17 @@ func updateDataService(r repo.Repository) func(c *gin.Context) {
 	}
 }
 
+// @Summary      Put image for data service
+// @Tags         DataService
+// @Description  Put image for data service
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param		 avatar formData file true 				   "DataService avatar file"
+// @Success      200    {object}  string 		   "Create Data Service"
+// @Failure      400    {object}  error  			   "Bad request"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/dataService/{dataServiceID}/image [post]
 func putImage(r repo.Repository, a repo.Avatar) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		log.Println("In put image")
@@ -158,6 +221,16 @@ func putImage(r repo.Repository, a repo.Avatar) func(c *gin.Context) {
 	}
 }
 
+// @Summary      Add data service to draft
+// @Tags         DataService
+// @Description  Add data service to draft
+// @Produce      json
+// @Param		 id path int true 				"Data Service ID"
+// @Success      200    {object}  string 		   "Data Service added to draft"
+// @Failure      400    {object}  error  			   "Bad request"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/dataService/draft/{id} [post]
 func addToDraft(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -175,6 +248,16 @@ func addToDraft(r repo.Repository) func(c *gin.Context) {
 	}
 }
 
+// @Summary      Delete data service from draft
+// @Tags         DataService
+// @Description  Delete data service from draft
+// @Produce      json
+// @Param		 id path int true 				"Data Service ID"
+// @Success      200    {object}  string 		   "Data Service added to draft"
+// @Failure      400    {object}  error  			   "Bad request"
+// @Failure      404    {object}  error  			   "Not found"
+// @Failure      500    {object}  error  			   "Server error"
+// @Router       /api/dataService/draft/{id} [delete]
 func deleteFromDraft(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)

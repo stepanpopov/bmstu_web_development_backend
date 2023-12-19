@@ -1,19 +1,20 @@
 package repo
 
 import (
+	"fmt"
 	"rip/internal/pkg/repo"
 
 	"github.com/google/uuid"
 )
 
 func (r *Repository) CreateUser(username, passwordHash string, isModerator bool) (uuid.UUID, error) {
-	randUUID, err := uuid.NewRandom()
+	randomUUID, err := uuid.NewRandom()
 	if err != nil {
-		return randUUID, err
+		return uuid.Nil, err
 	}
 
 	user := &repo.User{
-		UserID:      randUUID,
+		UserID:      randomUUID,
 		Username:    username,
 		Password:    passwordHash,
 		IsModerator: isModerator,
@@ -35,6 +36,6 @@ func (r *Repository) CheckUser(username, passwordHash string) (uuid.UUID, bool, 
 	if err := r.db.Where(user).Take(user).Error; err != nil {
 		return uuid.Nil, false, err
 	}
-
+	fmt.Println("repo: ", user.IsModerator)
 	return user.UserID, user.IsModerator, nil
 }
