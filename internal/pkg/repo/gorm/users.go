@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"fmt"
 	"rip/internal/pkg/repo"
 
 	"github.com/google/uuid"
@@ -32,9 +33,9 @@ func (r *Repository) CheckUser(username, passwordHash string) (uuid.UUID, bool, 
 		Password: passwordHash,
 	}
 
-	if err := r.db.First(user).Error; err != nil {
+	if err := r.db.Where(user).Take(user).Error; err != nil {
 		return uuid.Nil, false, err
 	}
-
+	fmt.Println("repo: ", user.IsModerator)
 	return user.UserID, user.IsModerator, nil
 }

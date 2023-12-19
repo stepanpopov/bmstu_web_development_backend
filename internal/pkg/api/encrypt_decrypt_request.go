@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"rip/internal/pkg/api/consts"
 	"rip/internal/pkg/repo"
 	"strconv"
 	"time"
@@ -63,7 +64,8 @@ func getEncryptDecryptRequests(r repo.Repository) func(c *gin.Context) {
 			}
 		}
 
-		requests, err := r.GetEncryptDecryptRequests(status, startDate, endDate, getUserUUIDFromCtx(c))
+		isModerator := c.GetBool(consts.ModeratorCtxParam)
+		requests, err := r.GetEncryptDecryptRequests(status, startDate, endDate, getUserUUIDFromCtx(c), isModerator)
 
 		if err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())
@@ -87,7 +89,7 @@ func getEncryptDecryptRequestsByID(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-		req, dataServices, err := r.GetEncryptDecryptRequestWithDataByID(uint(id), getUserUUIDFromCtx(c))
+		req, dataServices, err := r.GetEncryptDecryptRequestWithDataByID(uint(id), getUserUUIDFromCtx(c), c.GetBool(consts.ModeratorCtxParam))
 		if err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())
 			return
@@ -154,7 +156,7 @@ func formEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
 			return
 		}
 
-		req, dataServices, err := r.GetEncryptDecryptRequestWithDataByID(uint(id), getUserUUIDFromCtx(c))
+		req, dataServices, err := r.GetEncryptDecryptRequestWithDataByID(uint(id), getUserUUIDFromCtx(c), false)
 		if err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())
 			return

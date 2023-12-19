@@ -155,12 +155,15 @@ func (r *Repository) GetEncryptDecryptDraftID(creatorID uuid.UUID) (*uint, error
 	return &draftReq.RequestID, nil
 }
 
-func (r *Repository) GetEncryptDecryptRequests(status repo.Status, startDate, endDate time.Time, creatorID uuid.UUID) ([]repo.EncryptDecryptRequestView, error) {
+func (r *Repository) GetEncryptDecryptRequests(status repo.Status, startDate, endDate time.Time, creatorID uuid.UUID, isModerator bool) ([]repo.EncryptDecryptRequestView, error) {
 	var requests []repo.EncryptDecryptRequestView
 
 	filterCond := r.db.
-		Table("encrypt_decrypt_requests AS e").
-		Where("e.creator_id = ?", creatorID)
+		Table("encrypt_decrypt_requests AS e")
+
+	if !isModerator {
+		filterCond = filterCond.Where("e.creator_id = ?", creatorID)
+	}
 
 	if status != repo.UnknownStatus {
 		filterCond = filterCond.Where("e.status = ?", status)
@@ -187,16 +190,20 @@ func (r *Repository) GetEncryptDecryptRequests(status repo.Status, startDate, en
 	return requests, nil
 }
 
-func (r *Repository) GetEncryptDecryptRequestWithDataByID(requestID uint, creatorID uuid.UUID) (repo.EncryptDecryptRequestView, []repo.DataService, error) {
+func (r *Repository) GetEncryptDecryptRequestWithDataByID(requestID uint, creatorID uuid.UUID, isModerator bool) (repo.EncryptDecryptRequestView, []repo.DataService, error) {
 	if requestID == 0 {
 		return repo.EncryptDecryptRequestView{}, nil, errors.New("record not found")
 	}
 
 	reqView := repo.EncryptDecryptRequestView{RequestID: requestID}
 
-	res := r.db.
-		Table("encrypt_decrypt_requests AS e").
-		Where("creator_id = ?", creatorID).
+	filter := r.db.Table("encrypt_decrypt_requests AS e")
+
+	if !isModerator {
+		filter = filter.Where("creator_id = ?", creatorID)
+	}
+
+	res := filter.
 		Joins("LEFT JOIN users u1 on e.moderator_id = u1.user_id").
 		Joins("LEFT JOIN users u2 on e.creator_id = u2.user_id").
 		Select([]string{"e.request_id", "e.status", "e.creation_date", "e.finish_date", "e.form_date",

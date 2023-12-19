@@ -20,8 +20,8 @@ type Repository interface {
 	AddDataServiceToDraft(dataID uint, creatorID uuid.UUID) (uint, error)
 	DeleteDataServiceFromDraft(dataID uint, creatorID uuid.UUID) error
 	GetEncryptDecryptDraftID(creatorID uuid.UUID) (*uint, error)
-	GetEncryptDecryptRequests(status Status, startDate, endDate time.Time, creatorID uuid.UUID) ([]EncryptDecryptRequestView, error)
-	GetEncryptDecryptRequestWithDataByID(requestID uint, creatorID uuid.UUID) (EncryptDecryptRequestView, []DataService, error)
+	GetEncryptDecryptRequests(status Status, startDate, endDate time.Time, creatorID uuid.UUID, isModerator bool) ([]EncryptDecryptRequestView, error)
+	GetEncryptDecryptRequestWithDataByID(requestID uint, creatorID uuid.UUID, isModerator bool) (EncryptDecryptRequestView, []DataService, error)
 	FormEncryptDecryptRequestByID(requestID uint) error
 	DeleteEncryptDecryptRequestByID(requestID uint) error
 	FinishEncryptDecryptRequestByID(requestID uint, moderatorID uuid.UUID) error
