@@ -2,6 +2,7 @@ package repo
 
 import (
 	"errors"
+	"fmt"
 	"rip/internal/pkg/repo"
 	"strings"
 	"time"
@@ -309,6 +310,7 @@ func (r *Repository) finishRejectHelper(status repo.Status, requestID uint, mode
 func (r *Repository) UpdateCalculated(reqID uint, calculated []repo.Calculated) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		for _, calc := range calculated {
+			fmt.Println(reqID, calc.ID)
 			update := &repo.EncryptDecryptToData{
 				Success: calc.Success,
 			}
