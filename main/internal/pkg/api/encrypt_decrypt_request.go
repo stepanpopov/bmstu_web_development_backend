@@ -102,7 +102,7 @@ func getEncryptDecryptRequestsByID(r repo.Repository) func(c *gin.Context) {
 
 		c.JSON(http.StatusOK, gin.H{
 			"encDecReq":    req,
-			"dataServices": toViewSlice(dataServices),
+			"dataServices": toViewWithOptResultSlice(dataServices),
 		})
 	}
 }
@@ -153,7 +153,7 @@ func deleteEncryptDecryptRequest(r repo.Repository) func(c *gin.Context) {
 // @Router       /api/encryptDecryptRequest/form/{id} [put]
 func formEncryptDecryptRequest(
 	r repo.Repository,
-	makeCalculationRequest func(uint, []repo.DataService) (int, error),
+	makeCalculationRequest func(uint, []repo.DataServiceWithOptResult) (int, error),
 ) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -187,7 +187,7 @@ func formEncryptDecryptRequest(
 
 		c.JSON(http.StatusOK, gin.H{
 			"encDecReq":    req,
-			"dataServices": toViewSlice(dataServices),
+			"dataServices": toViewWithOptResultSlice(dataServices),
 		})
 	}
 }

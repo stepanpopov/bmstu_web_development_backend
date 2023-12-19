@@ -57,7 +57,6 @@ def logic_callback_send(task):
 '''
 {
     "req_id": 512,
-    "token": "aaaaaa",
     "calc": [
         {
             "id": 5,
@@ -77,10 +76,7 @@ def calculate_view(request, format=None):
         try:
             input = json.loads(request.body)
         except json.JSONDecodeError:
-            return HttpResponseBadRequest('Invalid Json')
-
-        if input['token'] != SECRET_TOKEN:
-            return Response('invalid token', status=status.HTTP_403_FORBIDDEN)        
+            return HttpResponseBadRequest('Invalid Json')      
 
         task = executor.submit(logic, input['req_id'], input['calc'])
         task.add_done_callback(logic_callback_send)        

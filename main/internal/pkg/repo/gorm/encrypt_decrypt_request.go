@@ -191,7 +191,15 @@ func (r *Repository) GetEncryptDecryptRequests(status repo.Status, startDate, en
 	return requests, nil
 }
 
-func (r *Repository) GetEncryptDecryptRequestWithDataByID(requestID uint, creatorID uuid.UUID, isModerator bool) (repo.EncryptDecryptRequestView, []repo.DataService, error) {
+func (r *Repository) GetEncryptDecryptRequestWithDataByID(
+	requestID uint,
+	creatorID uuid.UUID,
+	isModerator bool,
+) (
+	repo.EncryptDecryptRequestView,
+	[]repo.DataServiceWithOptResult,
+	error,
+) {
 	if requestID == 0 {
 		return repo.EncryptDecryptRequestView{}, nil, errors.New("record not found")
 	}
@@ -216,12 +224,13 @@ func (r *Repository) GetEncryptDecryptRequestWithDataByID(requestID uint, creato
 		return repo.EncryptDecryptRequestView{}, nil, err
 	}
 
-	var dataService []repo.DataService
-	// TODO: test
+	var dataService []repo.DataServiceWithOptResult
+
 	res = r.db.
-		Table("data_services").
+		Table("data_services as ds").
 		Where("active = ?", true).
-		Joins("JOIN encrypt_decrypt_to_data e on data_services.data_id = e.data_id and e.request_id = ?", requestID).
+		Joins("JOIN encrypt_decrypt_to_data e on ds.data_id = e.data_id and e.request_id = ?", requestID).
+		Select([]string{"e.result", "e.success", "ds.*"}).
 		Find(&dataService)
 
 	if err := res.Error; err != nil {

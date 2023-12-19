@@ -40,21 +40,44 @@ func toView(d repo.DataService) DataServiceView {
 	}
 }
 
-type DataServiceView struct {
-	DataID   uint   `json:"data_id"`
-	DataName string `json:"data_name"`
-	Encode   bool   `json:"encode"`
-	Blob     string `json:"blob"`
-	Active   bool   `json:"active"`
-	ImageURL string `json:"image_url,omitempty"`
-}
-
 func toViewSlice(dd []repo.DataService) []DataServiceView {
 	var view []DataServiceView
 	for _, d := range dd {
 		view = append(view, toView(d))
 	}
 	return view
+}
+
+func toViewWithOptResult(d repo.DataServiceWithOptResult) DataServiceView {
+	return DataServiceView{
+		DataID:   d.Ds.DataID,
+		DataName: d.Ds.DataName,
+		Encode:   d.Ds.Encode,
+		Blob:     d.Ds.Blob,
+		Active:   d.Ds.Active,
+		ImageURL: s3Url + d.Ds.ImageUUID.String(),
+		Result:   d.Result,
+		Success:  d.Success,
+	}
+}
+
+func toViewWithOptResultSlice(dd []repo.DataServiceWithOptResult) []DataServiceView {
+	var view []DataServiceView
+	for _, d := range dd {
+		view = append(view, toViewWithOptResult(d))
+	}
+	return view
+}
+
+type DataServiceView struct {
+	DataID   uint    `json:"data_id"`
+	DataName string  `json:"data_name"`
+	Encode   bool    `json:"encode"`
+	Blob     string  `json:"blob"`
+	Active   bool    `json:"active"`
+	ImageURL string  `json:"image_url,omitempty"`
+	Result   *string `json:"result,omitempty"`
+	Success  *bool   `json:"success,omitempty"`
 }
 
 func generateHashString(s string) string {
@@ -87,21 +110,19 @@ type Calculate struct {
 }
 
 type CalculateRequest struct {
-	Token string      `json:"token"`
 	ReqID uint        `json:"req_id"`
 	Calc  []Calculate `json:"calc"`
 }
 
-func (s *Server) makeCalculationRequest(reqID uint, dataServices []repo.DataService) (int, error) {
+func (s *Server) makeCalculationRequest(reqID uint, dataServices []repo.DataServiceWithOptResult) (int, error) {
 	// Define the data you want to send
 	calc := make([]Calculate, 0, len(dataServices))
 	for _, ds := range dataServices {
-		calc = append(calc, Calculate{ID: ds.DataID, Data: ds.Blob})
+		calc = append(calc, Calculate{ID: ds.Ds.DataID, Data: ds.Ds.Blob})
 	}
 
 	calcReq := CalculateRequest{
 		Calc:  calc,
-		Token: s.calculateSecret,
 		ReqID: reqID,
 	}
 

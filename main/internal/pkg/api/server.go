@@ -72,6 +72,7 @@ func (s *Server) StartServer(rep repo.Repository, avatar repo.Avatar, redis *red
 
 	r := gin.Default()
 	api := r.Group("/api")
+	// TODo: middleware only once
 
 	dataService := api.Group("/dataService")
 	dataService.GET("/", filterDataService(rep))
@@ -86,10 +87,10 @@ func (s *Server) StartServer(rep repo.Repository, avatar repo.Avatar, redis *red
 	dataService.Use(moderatorMiddleware...).PUT("/", updateDataService(rep))
 
 	encDecRequest := api.Group("/encryptDecryptRequest")
+	encDecRequest.PUT("/update_calculated", calculated(rep, s.calculateSecret))
+
 	encDecRequest.Use(userMiddleware).GET("/filter", getEncryptDecryptRequests(rep))
 	encDecRequest.Use(userMiddleware).GET("/:id", getEncryptDecryptRequestsByID(rep))
-
-	encDecRequest.PUT("/update_calculated", calculated(rep, s.calculateSecret))
 
 	encDecRequest.Use(userMiddleware).PUT("/form/:id", formEncryptDecryptRequest(rep, s.makeCalculationRequest))
 	encDecRequest.Use(userMiddleware).DELETE("/:req_id", deleteEncryptDecryptRequest(rep))

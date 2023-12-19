@@ -107,6 +107,17 @@ type EncryptDecryptToData struct {
 	Success   bool
 }
 
+/*type DataServiceResult struct {
+	Result  string
+	Success bool
+}*/
+
+type DataServiceWithOptResult struct {
+	Ds      DataService `json:"data_service"`
+	Result  *string     `gorm:"column:result"`
+	Success *bool       `gorm:"column:success"`
+}
+
 func All() []any {
 	return []any{
 		&User{},
