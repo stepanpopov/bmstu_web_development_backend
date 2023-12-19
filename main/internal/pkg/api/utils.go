@@ -50,12 +50,12 @@ func toViewSlice(dd []repo.DataService) []DataServiceView {
 
 func toViewWithOptResult(d repo.DataServiceWithOptResult) DataServiceView {
 	return DataServiceView{
-		DataID:   d.Ds.DataID,
-		DataName: d.Ds.DataName,
-		Encode:   d.Ds.Encode,
-		Blob:     d.Ds.Blob,
-		Active:   d.Ds.Active,
-		ImageURL: s3Url + d.Ds.ImageUUID.String(),
+		DataID:   d.DataID,
+		DataName: d.DataName,
+		Encode:   d.Encode,
+		Blob:     d.Blob,
+		Active:   d.Active,
+		ImageURL: s3Url + d.ImageUUID.String(),
 		Result:   d.Result,
 		Success:  d.Success,
 	}
@@ -118,7 +118,7 @@ func (s *Server) makeCalculationRequest(reqID uint, dataServices []repo.DataServ
 	// Define the data you want to send
 	calc := make([]Calculate, 0, len(dataServices))
 	for _, ds := range dataServices {
-		calc = append(calc, Calculate{ID: ds.Ds.DataID, Data: ds.Ds.Blob})
+		calc = append(calc, Calculate{ID: ds.DataID, Data: ds.Blob})
 	}
 
 	calcReq := CalculateRequest{

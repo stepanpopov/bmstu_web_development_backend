@@ -331,17 +331,22 @@ func (r *Repository) finishRejectHelper(status repo.Status, requestID uint, mode
 func (r *Repository) UpdateCalculated(reqID uint, calculated []repo.Calculated) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		for _, calc := range calculated {
-			fmt.Println(reqID, calc.ID)
-			update := &repo.EncryptDecryptToData{
-				Success: calc.Success,
-			}
-			if calc.Success {
-				update.Result = calc.Result
+			calcID := calc.ID
+			fmt.Println(reqID, calcID, calc.Success, calc.Result)
+			update := map[string]interface{}{
+				"success": calc.Success,
 			}
 
+			if calc.Success {
+				update["result"] = calc.Result
+			}
+
+			fmt.Println(update)
+
 			tx.
+				Model(&repo.EncryptDecryptToData{}).
 				Where(&repo.EncryptDecryptToData{
-					DataID:    calc.ID,
+					DataID:    calcID,
 					RequestID: reqID,
 				}).
 				Updates(update)
