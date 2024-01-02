@@ -7,6 +7,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 import requests
 
+from async_service.hamming_code import calc_hamming_code, detect_error, correct_hamming_code
+
 from concurrent import futures
 
 executor = futures.ThreadPoolExecutor(max_workers=1)
@@ -16,17 +18,22 @@ CALLBACK_URL = "http://localhost:8080/api/encryptDecryptRequest/update_calculate
 ERROR_PROBABITY = 0.3
 
 
-def calc(data: str):
+def calc(data: str, encode: bool):
     if random.random() < ERROR_PROBABITY:
         return False
-    return data
+    
+    if encode:
+        return calc_hamming_code(data)
+
+    error = detect_error(data)
+    return correct_hamming_code(data, error)
 
 def logic(req_id, to_be_calcuated):
     time.sleep(5)
     print(to_be_calcuated)
     return {
         "req_id": req_id,
-        "calculated": [(data['id'], calc(data['data'])) for data in to_be_calcuated]
+        "calculated": [(data['id'], calc(data['data'], data['encode'])) for data in to_be_calcuated]
     }
 
 def logic_callback_send(task): 
@@ -60,10 +67,12 @@ def logic_callback_send(task):
     "calc": [
         {
             "id": 5,
+            "encode": true,
             "data": 1515
         },
         {
             "id": 6,
+            "encode": false,
             "data": 1515
         }
     ]

@@ -75,9 +75,9 @@ type DataServiceView struct {
 	Encode   bool    `json:"encode"`
 	Blob     string  `json:"blob"`
 	Active   bool    `json:"active"`
-	ImageURL string  `json:"image_url,omitempty"`
-	Result   *string `json:"result,omitempty"`
-	Success  *bool   `json:"success,omitempty"`
+	ImageURL string  `json:"image_url"`
+	Result   *string `json:"result"`
+	Success  *bool   `json:"success"`
 }
 
 func generateHashString(s string) string {
@@ -105,8 +105,9 @@ func getJWTStr(gCtx *gin.Context) string {
 }
 
 type Calculate struct {
-	ID   uint   `json:"id"`
-	Data string `json:"data"`
+	ID     uint   `json:"id"`
+	Data   string `json:"data"`
+	Encode bool   `json:"encode"`
 }
 
 type CalculateRequest struct {
@@ -118,7 +119,7 @@ func (s *Server) makeCalculationRequest(reqID uint, dataServices []repo.DataServ
 	// Define the data you want to send
 	calc := make([]Calculate, 0, len(dataServices))
 	for _, ds := range dataServices {
-		calc = append(calc, Calculate{ID: ds.DataID, Data: ds.Blob})
+		calc = append(calc, Calculate{ID: ds.DataID, Data: ds.Blob, Encode: ds.Encode})
 	}
 
 	calcReq := CalculateRequest{

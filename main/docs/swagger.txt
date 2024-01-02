@@ -1,0 +1,890 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Rip",
+        "title": "Rip",
+        "contact": {
+            "name": "Rip API Support",
+            "email": "jomolun@yandex.com"
+        },
+        "version": "1.0.1"
+    },
+    "host": "localhost:80",
+    "basePath": "/",
+    "paths": {
+        "/api/auth/login": {
+            "post": {
+                "description": "Login account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "username and password",
+                        "name": "userInput",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_api.loginReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User created",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_api.loginResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect input",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "get": {
+                "description": "Logout",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout",
+                "responses": {
+                    "200": {
+                        "description": "Logout success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect input",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "description": "Create account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register",
+                "parameters": [
+                    {
+                        "description": "User info",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_api.registerReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User created",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_api.registerResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect input",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/api/dataService/": {
+            "get": {
+                "description": "Get data services filtered by name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DataService"
+                ],
+                "summary": "Filter data service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name",
+                        "name": "dataname",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data Service Filtered",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            },
+            "put": {
+                "description": "Update data services",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DataService"
+                ],
+                "summary": "Update data service",
+                "parameters": [
+                    {
+                        "description": "Data Service",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rip_internal_pkg_repo.DataService"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Create Data Service",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            },
+            "post": {
+                "description": "Create data services",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DataService"
+                ],
+                "summary": "Create data service",
+                "parameters": [
+                    {
+                        "description": "Data Service",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rip_internal_pkg_repo.DataService"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Create Data Service",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/api/dataService/draft/{id}": {
+            "post": {
+                "description": "Add data service to draft",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DataService"
+                ],
+                "summary": "Add data service to draft",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Data Service ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data Service added to draft",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete data service from draft",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DataService"
+                ],
+                "summary": "Delete data service from draft",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Data Service ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data Service added to draft",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/api/dataService/{dataServiceID}": {
+            "get": {
+                "description": "Get data service by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DataService"
+                ],
+                "summary": "Get data service by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Data Service ID",
+                        "name": "dataServiceID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Got Data Service",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_api.DataServiceView"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete data service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DataService"
+                ],
+                "summary": "Delete data service",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Data Service ID",
+                        "name": "dataServiceID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete Data Service",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/api/dataService/{dataServiceID}/image": {
+            "post": {
+                "description": "Put image for data service",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DataService"
+                ],
+                "summary": "Put image for data service",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "DataService avatar file",
+                        "name": "avatar",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Create Data Service",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/api/encryptDecryptRequest/filter": {
+            "get": {
+                "description": "Get requests filtered by status, start and end date",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EncryptDecryptRequest"
+                ],
+                "summary": "Filter EncryptDecryptRequests",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start Date",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End Date",
+                        "name": "end_date",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data Service Filtered",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/rip_internal_pkg_repo.EncryptDecryptRequestView"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/api/encryptDecryptRequest/form/{id}": {
+            "put": {
+                "description": "Form EncryptDecryptRequest by moderator",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EncryptDecryptRequest"
+                ],
+                "summary": "Form EncryptDecryptRequest by moderator",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "EncryptDecryptRequest ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "EncryptDecryptRequest and DataServices",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/api/encryptDecryptRequest/update_moderator/{id}": {
+            "put": {
+                "description": "Update EncryptDecryptRequest by moderator",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EncryptDecryptRequest"
+                ],
+                "summary": "Update EncryptDecryptRequest by moderator",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "EncryptDecryptRequest ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Action: finish or reject",
+                        "name": "action",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Finished/Rejected",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/api/encryptDecryptRequest/{req_id}": {
+            "get": {
+                "description": "Get EncryptDecryptRequest by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EncryptDecryptRequest"
+                ],
+                "summary": "Get EncryptDecryptRequest by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "EncryptDecryptRequest ID",
+                        "name": "req_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Draft EncryptDecryptRequest and Data Services",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete EncryptDecryptRequest by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EncryptDecryptRequest"
+                ],
+                "summary": "Delete EncryptDecryptRequest by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "EncryptDecryptRequest ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/api/encryptDecryptRequest/{req_id}/delete/{data_id}": {
+            "delete": {
+                "description": "Delete DataService from EncryptDecryptRequest",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EncryptDecryptRequest"
+                ],
+                "summary": "Delete DataService from EncryptDecryptRequest",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "EncryptDecryptRequest ID",
+                        "name": "req_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "DataService ID",
+                        "name": "data_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {}
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "internal_pkg_api.DataServiceView": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "blob": {
+                    "type": "string"
+                },
+                "data_id": {
+                    "type": "integer"
+                },
+                "data_name": {
+                    "type": "string"
+                },
+                "encode": {
+                    "type": "boolean"
+                },
+                "image_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_pkg_api.loginReq": {
+            "type": "object",
+            "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_pkg_api.loginResp": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "expires_in": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "token_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_pkg_api.registerReq": {
+            "type": "object",
+            "properties": {
+                "is_moderator": {
+                    "type": "boolean"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_pkg_api.registerResp": {
+            "type": "object",
+            "properties": {
+                "user_uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "rip_internal_pkg_repo.DataService": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "blob": {
+                    "type": "string"
+                },
+                "data_id": {
+                    "type": "integer"
+                },
+                "data_name": {
+                    "type": "string"
+                },
+                "encode": {
+                    "type": "boolean"
+                },
+                "image_uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "rip_internal_pkg_repo.EncryptDecryptRequestView": {
+            "type": "object",
+            "properties": {
+                "creationDate": {
+                    "type": "string"
+                },
+                "creator": {
+                    "type": "string"
+                },
+                "finishDate": {
+                    "type": "string"
+                },
+                "formDate": {
+                    "type": "string"
+                },
+                "moderator": {
+                    "type": "string"
+                },
+                "requestID": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/rip_internal_pkg_repo.Status"
+                }
+            }
+        },
+        "rip_internal_pkg_repo.Status": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "x-enum-varnames": [
+                "Draft",
+                "Deleted",
+                "Formed",
+                "Finished",
+                "Rejected",
+                "UnknownStatus"
+            ]
+        },
+        "time.Duration": {
+            "type": "integer",
+            "enum": [
+                -9223372036854775808,
+                9223372036854775807,
+                1,
+                1000,
+                1000000,
+                1000000000,
+                60000000000,
+                3600000000000
+            ],
+            "x-enum-varnames": [
+                "minDuration",
+                "maxDuration",
+                "Nanosecond",
+                "Microsecond",
+                "Millisecond",
+                "Second",
+                "Minute",
+                "Hour"
+            ]
+        }
+    }
+}

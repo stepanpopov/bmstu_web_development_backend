@@ -75,13 +75,14 @@ type DataService struct {
 }
 
 type EncryptDecryptRequest struct {
-	RequestID    uint `gorm:"primarykey"`
-	Status       Status
-	CreationDate time.Time `gorm:"default:NOW()"`
-	FinishDate   *time.Time
-	FormDate     *time.Time
-	ModeratorID  *uuid.UUID `gorm:"type:uuid"`
-	CreatorID    *uuid.UUID `gorm:"type:uuid"`
+	RequestID     uint `gorm:"primarykey"`
+	Status        Status
+	CreationDate  time.Time `gorm:"default:NOW()"`
+	FinishDate    *time.Time
+	FormDate      *time.Time
+	ModeratorID   *uuid.UUID `gorm:"type:uuid"`
+	CreatorID     *uuid.UUID `gorm:"type:uuid"`
+	ResultCounter uint
 }
 
 type EncryptDecryptRequestView struct {
@@ -94,6 +95,17 @@ type EncryptDecryptRequestView struct {
 	Creator      *string `gorm:"column:username"`
 }
 
+type EncryptDecryptRequestViewWithCount struct {
+	RequestID     uint `gorm:"primarykey"`
+	Status        Status
+	CreationDate  time.Time `gorm:"default:NOW()"`
+	FinishDate    *time.Time
+	FormDate      *time.Time
+	Moderator     *string `gorm:"column:username"`
+	Creator       *string `gorm:"column:username"`
+	ResultCounter uint
+}
+
 type Calculated struct {
 	ID      uint
 	Result  string
@@ -103,8 +115,8 @@ type Calculated struct {
 type EncryptDecryptToData struct {
 	DataID    uint `gorm:"primarykey"`
 	RequestID uint `gorm:"primarykey"`
-	Result    string
-	Success   bool
+	Result    *string
+	Success   *bool
 }
 
 /*type DataServiceResult struct {

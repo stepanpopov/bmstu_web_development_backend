@@ -156,8 +156,8 @@ func (r *Repository) GetEncryptDecryptDraftID(creatorID uuid.UUID) (*uint, error
 	return &draftReq.RequestID, nil
 }
 
-func (r *Repository) GetEncryptDecryptRequests(status repo.Status, startDate, endDate time.Time, creatorID uuid.UUID, isModerator bool) ([]repo.EncryptDecryptRequestView, error) {
-	var requests []repo.EncryptDecryptRequestView
+func (r *Repository) GetEncryptDecryptRequests(status repo.Status, startDate, endDate time.Time, creatorID uuid.UUID, isModerator bool) ([]repo.EncryptDecryptRequestViewWithCount, error) {
+	var requests []repo.EncryptDecryptRequestViewWithCount
 
 	filterCond := r.db.
 		Table("encrypt_decrypt_requests AS e")
@@ -181,7 +181,7 @@ func (r *Repository) GetEncryptDecryptRequests(status repo.Status, startDate, en
 	if err := filterCond.
 		Joins("LEFT JOIN users u1 on e.moderator_id = u1.user_id").
 		Joins("LEFT JOIN users u2 on e.creator_id = u2.user_id").
-		Select([]string{"e.request_id", "e.status", "e.creation_date", "e.finish_date", "e.form_date",
+		Select([]string{"e.request_id", "e.status", "e.creation_date", "e.finish_date", "e.form_date", "e.result_counter",
 			"u1.username", "u2.username",
 		}).
 		Find(&requests).Error; err != nil {
@@ -350,6 +350,9 @@ func (r *Repository) UpdateCalculated(reqID uint, calculated []repo.Calculated) 
 					RequestID: reqID,
 				}).
 				Updates(update)
+
+			tx.
+				Exec("UPDATE encrypt_decrypt_requests SET result_counter = result_counter + 1 WHERE request_id = ?", reqID)
 		}
 
 		return nil

@@ -36,8 +36,6 @@ services:
       container_name: db
       image: postgres:14
       restart: always
-      env_file:
-        - .env
       environment:
         POSTGRES_DB: ${DB_NAME}
         POSTGRES_USER: ${DB_USER}
