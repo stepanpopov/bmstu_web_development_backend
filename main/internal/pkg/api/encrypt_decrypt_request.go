@@ -158,7 +158,19 @@ func formEncryptDecryptRequest(
 	return func(c *gin.Context) {
 		id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-		err := r.FormEncryptDecryptRequestByID(uint(id))
+		type FormReq struct {
+			EncodingType string `json:"encoding_type"`
+		}
+		formReq := FormReq{}
+
+		if err := c.BindJSON(&formReq); err != nil {
+			respMessage(c, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		print(formReq.EncodingType)
+
+		err := r.FormEncryptDecryptRequestByID(uint(id), formReq.EncodingType)
 		if err != nil {
 			respMessageAbort(c, http.StatusBadRequest, err.Error())
 			return

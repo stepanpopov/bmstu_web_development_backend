@@ -83,6 +83,7 @@ type EncryptDecryptRequest struct {
 	ModeratorID   *uuid.UUID `gorm:"type:uuid"`
 	CreatorID     *uuid.UUID `gorm:"type:uuid"`
 	ResultCounter uint
+	EncodingType  *string `gorm:"type:varchar(60)"`
 }
 
 type EncryptDecryptRequestView struct {
@@ -93,6 +94,7 @@ type EncryptDecryptRequestView struct {
 	FormDate     *time.Time
 	Moderator    *string `gorm:"column:username"`
 	Creator      *string `gorm:"column:username"`
+	EncodingType *string `gorm:"type:varchar(60)"`
 }
 
 type EncryptDecryptRequestViewWithCount struct {
@@ -104,6 +106,7 @@ type EncryptDecryptRequestViewWithCount struct {
 	Moderator     *string `gorm:"column:username"`
 	Creator       *string `gorm:"column:username"`
 	ResultCounter uint
+	EncodingType  *string `gorm:"type:varchar(60)"`
 }
 
 type Calculated struct {

@@ -22,7 +22,7 @@ type Repository interface {
 	GetEncryptDecryptDraftID(creatorID uuid.UUID) (*uint, error)
 	GetEncryptDecryptRequests(status Status, startDate, endDate time.Time, creatorID uuid.UUID, isModerator bool) ([]EncryptDecryptRequestViewWithCount, error)
 	GetEncryptDecryptRequestWithDataByID(requestID uint, creatorID uuid.UUID, isModerator bool) (EncryptDecryptRequestView, []DataServiceWithOptResult, error)
-	FormEncryptDecryptRequestByID(requestID uint) error
+	FormEncryptDecryptRequestByID(requestID uint, enc string) error
 	DeleteEncryptDecryptRequestByID(requestID uint) error
 	FinishEncryptDecryptRequestByID(requestID uint, moderatorID uuid.UUID) error
 	RejectEncryptDecryptRequestByID(requestID uint, moderatorID uuid.UUID) error

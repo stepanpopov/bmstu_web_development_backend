@@ -181,7 +181,7 @@ func (r *Repository) GetEncryptDecryptRequests(status repo.Status, startDate, en
 	if err := filterCond.
 		Joins("LEFT JOIN users u1 on e.moderator_id = u1.user_id").
 		Joins("LEFT JOIN users u2 on e.creator_id = u2.user_id").
-		Select([]string{"e.request_id", "e.status", "e.creation_date", "e.finish_date", "e.form_date", "e.result_counter",
+		Select([]string{"e.request_id", "e.status", "e.creation_date", "e.finish_date", "e.form_date", "e.result_counter", "e.encoding_type",
 			"u1.username", "u2.username",
 		}).
 		Find(&requests).Error; err != nil {
@@ -241,7 +241,7 @@ func (r *Repository) GetEncryptDecryptRequestWithDataByID(
 }
 
 // creator
-func (r *Repository) FormEncryptDecryptRequestByID(requestID uint) error {
+func (r *Repository) FormEncryptDecryptRequestByID(requestID uint, encoding_type string) error {
 	var req repo.EncryptDecryptRequest
 	res := r.db.
 		Where("request_id = ?", requestID).
@@ -258,6 +258,7 @@ func (r *Repository) FormEncryptDecryptRequestByID(requestID uint) error {
 	req.Status = repo.Formed
 	now := r.db.NowFunc()
 	req.FormDate = &now // наверно не прокнет тк это алиас к time.Now().Local()
+	req.EncodingType = &encoding_type
 
 	if err := r.db.Save(&req).Error; err != nil {
 		return err
