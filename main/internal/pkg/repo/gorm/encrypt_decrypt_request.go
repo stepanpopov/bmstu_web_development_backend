@@ -83,7 +83,7 @@ func (r *Repository) DeleteDataServiceFromDraft(dataID uint, creatorID uuid.UUID
 	if data == nil {
 		return errors.New("нет такой услуги")
 	}
-	if data.Active {
+	if !data.Active {
 		return errors.New("услуга удалена")
 	}
 

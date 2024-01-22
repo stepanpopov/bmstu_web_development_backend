@@ -61,7 +61,7 @@ type JWTClaims struct {
 type User struct {
 	UserID      uuid.UUID `gorm:"primary_key"`
 	Username    string    `gorm:"type:varchar(30)"`
-	Password    string    `gorm:"type:varchar(30)"`
+	Password    string    `gorm:"type:varchar(60)"`
 	IsModerator bool      `gorm:"type:boolean"`
 }
 
