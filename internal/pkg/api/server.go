@@ -58,14 +58,15 @@ func (s *Server) StartServer(rep repo.Repository, avatar repo.Avatar, redis *red
 
 	moderatorMiddleware := []gin.HandlerFunc{middleware.WithAuthCheck(s.jwtConfig.Secret, redis), middleware.WithModeratorCheck}
 	userMiddleware := middleware.WithAuthCheck(s.jwtConfig.Secret, redis)
+	authSetMiddleware := middleware.WithAuthSet(s.jwtConfig.Secret, redis)
 
 	r := gin.Default()
 	api := r.Group("/api")
 
 	dataService := api.Group("/dataService")
-	dataService.GET("/", filterDataService(rep))
 	dataService.GET("/:id", getDataServiceByID(rep))
 
+	dataService.Use(authSetMiddleware).GET("/", filterDataService(rep))
 	dataService.Use(userMiddleware).POST("/draft/:id", addToDraft(rep))
 	dataService.Use(userMiddleware).DELETE("/draft/:id", deleteFromDraft(rep)) //
 
@@ -86,7 +87,9 @@ func (s *Server) StartServer(rep repo.Repository, avatar repo.Avatar, redis *red
 	auth := api.Group("/auth")
 	auth.POST("/login", login(rep, s.jwtConfig.Secret, s.jwtConfig.ExpiresIn))
 	auth.POST("/register", register(rep))
-	auth.GET("/logout", logout(rep, s.jwtConfig.ExpiresIn, redis))
+	auth.GET("/logout", logout(s.jwtConfig.ExpiresIn, redis))
+
+	auth.Use(userMiddleware).GET("/checkCookies", checkCookies())
 
 	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

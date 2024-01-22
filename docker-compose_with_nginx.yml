@@ -27,6 +27,8 @@ services:
   redis:
     image: redis:6.2-alpine
     restart: always
+    networks:
+      - rip
     ports:
       - '6379:6379'
     command: redis-server --save 20 1 --loglevel warning --requirepass password
@@ -36,6 +38,8 @@ services:
       container_name: db
       image: postgres:14
       restart: always
+      networks:
+      - rip
       env_file:
         - .env
       environment:
@@ -51,6 +55,8 @@ services:
   minio1:
     <<: *minio-common
     hostname: minio1 # указываем что адрес внутри подсети docker будет http://minio1:9000/ и на порту 9001 для админки соотвественно
+    networks:
+      - rip
     volumes: # куда физически переадресовать* память(в какие разделы) из виртуальной(в докере) на вашу машину. по сути это работает как хард линк на файл/папку
       - data1-1:/data1
       - data1-2:/data2
@@ -58,6 +64,8 @@ services:
   minio2: # аналогично ставим 2-4 ноды
     <<: *minio-common
     hostname: minio2
+    networks:
+      - rip
     volumes:
       - data2-1:/data1
       - data2-2:/data2
@@ -65,6 +73,8 @@ services:
   minio3:
     <<: *minio-common
     hostname: minio3
+    networks:
+      - rip
     volumes:
       - data3-1:/data1
       - data3-2:/data2
@@ -72,6 +82,8 @@ services:
   minio4:
     <<: *minio-common
     hostname: minio4
+    networks:
+      - rip
     volumes:
       - data4-1:/data1
       - data4-2:/data2
@@ -80,6 +92,10 @@ services:
     image: nginx:1.19.2-alpine # исходники сервиса взять отсюда
     hostname: nginx # hostname внутри подсети docker будет nginx
     user: root
+    networks:
+      - rip
+    extra_hosts:
+      - "dockerhost:172.20.0.1"
     volumes:
       # куда физически переадресовать* память(в какие разделы) из виртуальной(в докере) на вашу машину. по сути это работает как хард линк на файл/папку. 
       # доступ даем на ro (read only) 
@@ -109,4 +125,13 @@ volumes:
   postgresdb-data:
   redis-data:
     driver: local
+
+
+networks:
+  rip:
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.20.0.0/16
+        gateway: 172.20.0.1
   

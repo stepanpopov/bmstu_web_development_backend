@@ -115,7 +115,8 @@ func createDataService(r repo.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		data := repo.DataService{}
 		if err := c.BindJSON(&data); err != nil {
-			respMessage(c, http.StatusBadRequest, err.Error())
+			print("after bind")
+			respMessageAbort(c, http.StatusBadRequest, err.Error())
 			return
 		}
 		data.DataID = 0
@@ -131,6 +132,7 @@ func createDataService(r repo.Repository) func(c *gin.Context) {
 
 		dataID, err := r.CreateDataService(data)
 		if err != nil {
+			print("after orm")
 			respMessage(c, http.StatusBadRequest, err.Error())
 			return
 		}
@@ -195,7 +197,7 @@ func putImage(r repo.Repository, a repo.Avatar) func(c *gin.Context) {
 
 		form, err := c.MultipartForm()
 		if err != nil {
-			respMessageAbort(c, http.StatusBadRequest, "не получается достать изображение")
+			respMessageAbort(c, http.StatusBadRequest, "не получается достать изображение: "+err.Error())
 			return
 		}
 		fileHeader := form.File["avatar"][0]

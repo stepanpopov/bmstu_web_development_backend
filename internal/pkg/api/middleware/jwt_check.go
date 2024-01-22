@@ -16,6 +16,41 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+func WithAuthSet(secret string, redisCl *myRedis.RedisClient) func(gCtx *gin.Context) {
+	return func(gCtx *gin.Context) {
+		jwtStr := gCtx.GetHeader("Authorization")
+		if !strings.HasPrefix(jwtStr, consts.JwtPrefix) {
+			return
+		}
+		// отрезаем префикс
+		jwtStr = jwtStr[len(consts.JwtPrefix):]
+
+		err := redisCl.CheckJWTInBlacklist(gCtx, jwtStr)
+		if err == nil { // значит что токен в блеклисте
+			gCtx.AbortWithStatus(http.StatusForbidden)
+			return
+		}
+		if !errors.Is(err, redis.Nil) { // значит что это не ошибка отсуствия - внутренняя ошибка
+			gCtx.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		parsedToken, err := jwt.ParseWithClaims(jwtStr, &repo.JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+			return []byte(secret), nil
+		})
+		if err != nil {
+			gCtx.AbortWithStatus(http.StatusForbidden)
+			log.Println(err)
+			return
+		}
+
+		myClaims := parsedToken.Claims.(*repo.JWTClaims)
+		fmt.Println(myClaims.IsModerator, myClaims.UserUUID)
+		gCtx.Set(consts.ModeratorCtxParam, myClaims.IsModerator)
+		gCtx.Set(consts.UserUUIDCtxParam, myClaims.UserUUID)
+	}
+}
+
 func WithAuthCheck(secret string, redisCl *myRedis.RedisClient) func(gCtx *gin.Context) {
 	return func(gCtx *gin.Context) {
 		jwtStr := gCtx.GetHeader("Authorization")

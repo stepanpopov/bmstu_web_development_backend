@@ -22,6 +22,7 @@ type loginResp struct {
 	ExpiresIn   time.Duration `json:"expires_in"`
 	AccessToken string        `json:"access_token"`
 	TokenType   string        `json:"token_type"`
+	IsModerator bool          `json:"is_moderator"`
 }
 
 // @Summary		Login
@@ -78,6 +79,7 @@ func login(r repo.Repository, secret string, jwtExpiresIn time.Duration) func(c 
 			ExpiresIn:   jwtExpiresIn,
 			AccessToken: strToken,
 			TokenType:   "Bearer",
+			IsModerator: isModerator,
 		})
 	}
 }
@@ -133,7 +135,7 @@ func register(r repo.Repository) func(c *gin.Context) {
 // @Failure		400		{object}	error			"Incorrect input"
 // @Failure		500		{object}	error			"Server error"
 // @Router		/api/auth/logout [get]
-func logout(r repo.Repository, jwtExpiresIn time.Duration, redisCl *redis.RedisClient) func(c *gin.Context) {
+func logout(jwtExpiresIn time.Duration, redisCl *redis.RedisClient) func(c *gin.Context) {
 	return func(gCtx *gin.Context) {
 		jwtStr := getJWTStr(gCtx)
 
@@ -144,6 +146,12 @@ func logout(r repo.Repository, jwtExpiresIn time.Duration, redisCl *redis.RedisC
 			return
 		}
 
+		gCtx.Status(http.StatusOK)
+	}
+}
+
+func checkCookies() func(c *gin.Context) {
+	return func(gCtx *gin.Context) {
 		gCtx.Status(http.StatusOK)
 	}
 }
