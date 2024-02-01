@@ -21,7 +21,7 @@ https://github.com/stepanpopov/rip_async
 - [GH Pages](https://stepanpopov.github.io/rip_frontend/)
 
 # Мобильное приложение:
-- [React Native (лаб 7)](https://github.com/stepanpopov/rip_mobile/tree/react-native)
+- [React Native (лаб 7)](https://github.com/stepanpopov/rip_mobile)
 
 # ДЗ:
 - [Интерфес модератора](https://github.com/stepanpopov/rip_frontend/tree/moderator_remove_draft_from_redux)
