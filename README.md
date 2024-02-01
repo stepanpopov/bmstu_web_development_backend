@@ -5,8 +5,8 @@ https://github.com/stepanpopov/rip_frontend
 https://github.com/stepanpopov/rip_mobile
 ## Асинхронный сервис:
 https://github.com/stepanpopov/rip_async
-
-
+#
+#
 # Лабораторные
 ## Бэкенд (основной сервис)
 - [SSR (лаб 1)](https://github.com/stepanpopov/rip/tree/server_side_rendering)
