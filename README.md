@@ -25,4 +25,4 @@ https://github.com/stepanpopov/rip_async
 
 # ДЗ:
 - [Интерфес модератора](https://github.com/stepanpopov/rip_front/tree/moderator_remove_draft_from_redux)
-- [РПЗ](https://github.com/stepanpopov/rip/blob/РПЗ Попов ИУ5-53Б.docx)
+- [РПЗ](https://github.com/stepanpopov/rip/blob/main/%D0%A0%D0%9F%D0%97%20%D0%9F%D0%BE%D0%BF%D0%BE%D0%B2%20%D0%98%D0%A35-53%D0%91.docx)
